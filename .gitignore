@@ -1,0 +1,25 @@
+# Dependências
+node_modules/
+
+# Build
+.next/
+out/
+build/
+
+# Ambiente
+.env*
+!.env.example
+
+# Editores e SO
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs e temporários
+*.log
+*.tmp
+*.tsbuildinfo
+
+# Deploy
+.vercel
