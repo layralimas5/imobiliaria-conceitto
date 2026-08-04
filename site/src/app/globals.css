@@ -1,0 +1,122 @@
+@import "tailwindcss";
+
+/*
+ * Conceitto design tokens.
+ *
+ * Warm off-white paper, near-black ink, deep forest green as the brand accent
+ * and a muted bronze for highlights. The palette stays quiet on purpose: the
+ * property photography is the loud element on every page.
+ */
+@theme {
+  --color-paper: #faf8f5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f3efe9;
+
+  --color-ink: #14150f;
+  --color-ink-soft: #55564d;
+  --color-ink-faint: #8a8b80;
+
+  --color-line: #e5e0d6;
+  --color-line-strong: #d3ccbe;
+
+  --color-forest-50: #eef2ef;
+  --color-forest-100: #d6e0d8;
+  --color-forest-500: #2c5446;
+  --color-forest-600: #234438;
+  --color-forest-700: #1a332a;
+  --color-forest-900: #101f1a;
+
+  --color-bronze-100: #f0e6d9;
+  --color-bronze-400: #b08b5c;
+  --color-bronze-600: #8a6a41;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
+
+  --radius-card: 0.75rem;
+
+  --shadow-card: 0 1px 2px rgb(20 21 15 / 0.04), 0 8px 24px -12px rgb(20 21 15 / 0.12);
+  --shadow-card-hover: 0 2px 4px rgb(20 21 15 / 0.05), 0 18px 40px -16px rgb(20 21 15 / 0.22);
+  --shadow-panel: 0 24px 60px -24px rgb(20 21 15 / 0.28);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Visible focus everywhere, including for mouse users on form controls. */
+  :focus-visible {
+    outline: 2px solid var(--color-forest-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-forest-100);
+    color: var(--color-forest-900);
+  }
+}
+
+@layer components {
+  /* Display type: serif, tight, generous size steps. */
+  .text-display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+  }
+
+  .text-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink-faint);
+  }
+
+  /* Horizontal rhythm shared by every full-width section. */
+  .container-page {
+    width: 100%;
+    margin-inline: auto;
+    max-width: 80rem;
+    padding-inline: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
