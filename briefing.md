@@ -142,3 +142,58 @@ Fallback, se o feed não vier: scraping agendado do site atual, que expõe todos
 2. **Domínio e migração:** plano de 301 das URLs atuais.
 3. **Identidade:** existe manual de marca, logo em vetor, banco de fotos?
 4. **Hospedagem:** Vercel é o caminho natural com Next.js.
+5. **Roteamento de lead por cidade:** a divisão matriz/filial em
+   `site/src/lib/site-config.ts` foi inferida por geografia. Confirmar com o
+   cliente quais municípios cada unidade atende.
+
+---
+
+## Status da primeira entrega (03/08/2026)
+
+Portal funcionando em `site/`, rodando com dados reais.
+
+**O que já está de pé:**
+
+| Rota | O que é |
+|---|---|
+| `/` | Home com hero, busca, destaques, cidades, diferenciais, unidades |
+| `/comprar` e `/alugar` | Busca com filtros, ordenação e paginação |
+| `/comprar/<cidade>-rs` | URLs de lugar, iguais às já indexadas |
+| `/imovel/<op>/<tipo>/<cidade>/<bairro>/<código>` | Ficha completa |
+| `/sobre`, `/contato`, `/anuncie`, `/lancamentos` | Institucional |
+| `/sitemap.xml`, `/robots.txt` | SEO |
+| `/api/leads` | Captação de lead validada |
+
+**Números do build:** 181 páginas, 119 fichas pré-renderizadas, 175 URLs no
+sitemap. Lint e typecheck limpos.
+
+**Diferenças concretas em relação ao site atual:**
+
+- Filtro de faixa de preço, área, dormitórios, banheiros e vagas — o site
+  atual não tem nenhum deles
+- Galeria em tela cheia com teclado (setas e Esc)
+- Custo mensal estimado (condomínio + IPTU/12) na ficha
+- WhatsApp roteado por unidade **e** por operação, usando os 4 números que a
+  Conceitto já mantém no MSYS, com o código do imóvel na mensagem
+- Bloco de imóveis parecidos, pontuado por cidade, bairro, tipo e preço
+- JSON-LD `RealEstateListing` em cada ficha
+- URLs antigas em formato não canônico respondem 308 para a canônica
+
+**Validado rodando** (`npm run build && npm run start`): status das rotas,
+contagem dos filtros, canonical, JSON-LD, redirect de URL legada, 404 de código
+inexistente e os quatro casos da API de lead. Não foi feita conferência visual
+em navegador nem teste de Core Web Vitals.
+
+**Sobre os dados:** o catálogo tem 119 dos 1490 imóveis. É uma amostra
+estratificada por cidade, categoria e operação, o suficiente para desenvolver e
+demonstrar. `npm run sync -- --all` puxa o catálogo inteiro.
+
+## Próximos passos
+
+1. Pedir ao cliente o feed XML do MSYS e trocar a origem em
+   `scripts/sync-catalog.mjs` (a interface `PropertyRepository` não muda)
+2. Ligar a entrega de lead: e-mail e/ou webhook do MSYS em `/api/leads`
+3. Mapa na ficha e na busca (falta geocodificar, o MSYS não expõe lat/lng)
+4. Logo em vetor e definição da paleta final com o cliente
+5. LP de lançamento no padrão do Alba, dentro do domínio próprio
+6. Deploy em staging para o cliente aprovar

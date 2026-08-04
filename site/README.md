@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Site da Imobiliária Conceitto
 
-## Getting Started
+Portal de imóveis em Next.js 16 (App Router) + TypeScript + Tailwind v4.
 
-First, run the development server:
+## Rodar
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm run build` | Build de produção |
+| `npm run start` | Sobe o build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run sync` | Sincroniza o catálogo (padrão: 120 imóveis) |
+| `npm run sync -- --all` | Sincroniza o catálogo inteiro |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## De onde vêm os imóveis
 
-## Learn More
+A fonte de verdade é o **MSYS Imob**, o CRM que a Conceitto usa. A equipe
+continua cadastrando lá; o site só lê.
 
-To learn more about Next.js, take a look at the following resources:
+`scripts/sync-catalog.mjs` gera `src/data/catalog/catalog.json` a partir dos
+registros que o MSYS já publica. Quando o cliente liberar o feed XML oficial de
+portais, só a função `fetchRawRecord` do script muda — o mapeamento e o resto do
+site continuam iguais, porque as duas superfícies expõem os mesmos campos.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Nada no app importa o JSON direto. Tudo passa por `PropertyRepository`
+(`src/data/property-repository.ts`), que é a única fronteira com a origem dos
+dados. Trocar para uma API ao vivo é implementar essa interface.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estrutura
 
-## Deploy on Vercel
+```
+src/
+  domain/       regras e tipos (Property, SearchQuery, Lead) — sem framework
+  data/         repositório e catálogo sincronizado
+  lib/          formatação, slugs de lugar, config do site e das unidades
+  components/   layout, property, search
+  app/          rotas
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## URLs
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O padrão de URL espelha o que o site atual já tem indexado, para a migração ser
+redirect 1:1:
+
+- `/comprar`, `/alugar` — busca com filtros no querystring
+- `/comprar/farroupilha-rs`, `/alugar/centro-bento-goncalves-rs` — páginas de lugar
+- `/imovel/<operação>/<tipo>/<cidade>/<bairro>/<código>` — ficha
+
+Qualquer variação da URL da ficha (categoria no plural, slug antigo de bairro)
+responde 308 para a forma canônica, desde que o código no fim esteja certo.
+
+## Pendências de integração
+
+- **Leads:** `/api/leads` valida e registra no log do servidor. Falta o
+  transporte (e-mail ou webhook do MSYS).
+- **Mapa:** o MSYS não expõe lat/lng. Precisa geocodificar por endereço.
+- **Roteamento de unidade:** a divisão de municípios entre matriz e filial em
+  `src/lib/site-config.ts` foi inferida por geografia e precisa de confirmação.
