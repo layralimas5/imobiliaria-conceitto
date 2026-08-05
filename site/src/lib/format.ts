@@ -24,6 +24,13 @@ export function formatArea(value: number | null): string | null {
   return value === null ? null : `${decimal.format(value)} m²`;
 }
 
+/** "84 a 130 m²", collapsing to a single measure when the range is one value. */
+export function formatAreaRange(min: number, max: number): string {
+  return min === max
+    ? `${decimal.format(min)} m²`
+    : `${decimal.format(min)} a ${decimal.format(max)} m²`;
+}
+
 /** Monthly carrying cost, the number buyers actually budget against. */
 export function formatMonthlyCost(condoFee: number | null, propertyTax: number | null) {
   const monthlyTax = propertyTax === null ? 0 : propertyTax / 12;

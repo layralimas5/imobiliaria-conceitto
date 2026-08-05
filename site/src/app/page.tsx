@@ -2,16 +2,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Camera, KeyRound, Megaphone, ShieldCheck } from 'lucide-react';
 import { propertyRepository } from '@/data/catalog-repository';
+import { developmentRepository } from '@/data/development-catalog';
 import { TYPE_LABELS_PLURAL } from '@/domain/search';
 import { PropertyCard } from '@/components/property/property-card';
+import { DevelopmentCard } from '@/components/development/development-card';
 import { SearchBar } from '@/components/search/search-bar';
 import { BRANCHES, SITE } from '@/lib/site-config';
 
 export default async function HomePage() {
-  const [featured, saleFacets, rentFacets] = await Promise.all([
+  const [featured, saleFacets, rentFacets, developments] = await Promise.all([
     propertyRepository.featured(6),
     propertyRepository.facets('venda'),
     propertyRepository.facets('locacao'),
+    developmentRepository.featured(3),
   ]);
 
   const heroPhoto = featured.find((property) => property.coverPhoto)?.coverPhoto ?? null;
@@ -92,6 +95,37 @@ export default async function HomePage() {
           ))}
         </ul>
       </section>
+
+      {/* Launches */}
+      {developments.length > 0 ? (
+        <section className="container-page border-t border-line pb-4 pt-16 md:pt-20">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="max-w-xl">
+              <p className="text-eyebrow">Lançamentos</p>
+              <h2 className="text-display mt-3 text-4xl md:text-5xl">Comprar na planta</h2>
+              <p className="mt-4 text-base leading-relaxed text-ink-soft">
+                Empreendimentos com condição de lançamento, personalização de planta e a
+                melhor tabela do ciclo de obra.
+              </p>
+            </div>
+            <Link
+              href="/lancamentos"
+              className="group inline-flex items-center gap-2 text-sm font-medium"
+            >
+              Ver todos os lançamentos
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          <ul className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {developments.map((development) => (
+              <li key={development.slug} className="flex">
+                <DevelopmentCard development={development} className="w-full" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {/* Cities and types */}
       <section className="border-y border-line bg-surface-muted py-20 md:py-24">

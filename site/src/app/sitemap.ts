@@ -1,14 +1,17 @@
 import type { MetadataRoute } from 'next';
 import { propertyRepository } from '@/data/catalog-repository';
+import { developmentRepository } from '@/data/development-catalog';
+import { developmentPath } from '@/domain/development';
 import { propertyPath } from '@/domain/property';
 import { placeSlugFor } from '@/lib/place-slug';
 import { SITE } from '@/lib/site-config';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [summaries, saleFacets, rentFacets] = await Promise.all([
+  const [summaries, saleFacets, rentFacets, developments] = await Promise.all([
     propertyRepository.allSummaries(),
     propertyRepository.facets('venda'),
     propertyRepository.facets('locacao'),
+    developmentRepository.all(),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -48,11 +51,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })),
   ];
 
+  const developmentRoutes: MetadataRoute.Sitemap = developments.map((development) => ({
+    url: `${SITE.url}${developmentPath(development)}`,
+    changeFrequency: 'weekly',
+    priority: 0.8,
+  }));
+
   const propertyRoutes: MetadataRoute.Sitemap = summaries.map((summary) => ({
     url: `${SITE.url}${propertyPath(summary)}`,
     changeFrequency: 'weekly',
     priority: 0.7,
   }));
 
-  return [...staticRoutes, ...placeRoutes, ...propertyRoutes];
+  return [...staticRoutes, ...developmentRoutes, ...placeRoutes, ...propertyRoutes];
 }

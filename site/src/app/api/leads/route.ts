@@ -44,6 +44,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     intent: lead.intent,
     message: lead.message,
     propertyCode: lead.propertyCode,
+    developmentSlug: lead.developmentSlug,
     receivedAt: new Date().toISOString(),
   });
 

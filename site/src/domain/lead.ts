@@ -24,6 +24,8 @@ export const leadSchema = z.object({
   intent: z.enum(LEAD_INTENTS).default('visita'),
   message: z.string().trim().max(1000).optional(),
   propertyCode: z.string().trim().max(20).optional(),
+  /** Slug of the development the visitor was looking at, when it came from a launch page. */
+  developmentSlug: z.string().trim().max(80).optional(),
   /**
    * Honeypot: real users never fill this. It stays valid on purpose — the
    * request is accepted and dropped later, so bots get no signal that they

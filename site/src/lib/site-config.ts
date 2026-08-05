@@ -1,3 +1,4 @@
+import type { Development } from '@/domain/development';
 import type { CitySlug, Operation } from '@/domain/property';
 
 export type BranchId = 'farroupilha' | 'bento-goncalves';
@@ -104,6 +105,15 @@ export function whatsappLink(options: {
       ? `Olá! Tenho interesse no imóvel de código ${propertyCode}. Pode me passar mais informações?`
       : 'Olá! Gostaria de falar com um corretor da Conceitto.');
   return `https://wa.me/${branch.whatsapp[operation]}?text=${encodeURIComponent(message)}`;
+}
+
+/** Opens the conversation already naming the development the visitor is on. */
+export function developmentWhatsapp(development: Development): string {
+  return whatsappLink({
+    city: development.location.citySlug,
+    operation: 'venda',
+    message: `Olá! Quero saber mais sobre o ${development.name}, em ${development.location.city}.`,
+  });
 }
 
 export const NAV_LINKS = [

@@ -160,7 +160,9 @@ Portal funcionando em `site/`, rodando com dados reais.
 | `/comprar` e `/alugar` | Busca com filtros, ordenação e paginação |
 | `/comprar/<cidade>-rs` | URLs de lugar, iguais às já indexadas |
 | `/imovel/<op>/<tipo>/<cidade>/<bairro>/<código>` | Ficha completa |
-| `/sobre`, `/contato`, `/anuncie`, `/lancamentos` | Institucional |
+| `/lancamentos` | Vitrine dos empreendimentos |
+| `/lancamentos/<slug>` | Landing page do empreendimento |
+| `/sobre`, `/contato`, `/anuncie` | Institucional |
 | `/sitemap.xml`, `/robots.txt` | SEO |
 | `/api/leads` | Captação de lead validada |
 
@@ -188,6 +190,51 @@ em navegador nem teste de Core Web Vitals.
 estratificada por cidade, categoria e operação, o suficiente para desenvolver e
 demonstrar. `npm run sync -- --all` puxa o catálogo inteiro.
 
+## Segunda entrega (05/08/2026) — módulo de lançamentos
+
+As landing pages de empreendimento agora vivem dentro do domínio da Conceitto,
+que é o que traz para casa o SEO hoje doado ao subdomínio de terceiro.
+
+**O que entrou:**
+
+- `/lancamentos` — vitrine com card por empreendimento, estágio de venda
+  (lançamento / em obras / pronto), faixa de área, dormitórios e preço de entrada
+- `/lancamentos/<slug>` — LP completa: hero em tela cheia, menu âncora que
+  acompanha a rolagem, conceito, números do produto, tipologias com área e valor,
+  lazer, padrão construtivo, galeria em tela cheia, localização e captação de lead
+  amarrada ao empreendimento
+- Bloco "Comprar na planta" na home, com os três lançamentos com material pronto
+- `developmentSlug` no lead, para o corretor saber de qual empreendimento veio
+- JSON-LD `ApartmentComplex` (residencial) e `LocalBusiness` (comercial), mais as
+  cinco URLs novas no sitemap
+
+**Cinco empreendimentos no ar**, com conteúdo tirado do que a Conceitto já
+publica no MSYS: Vegas Life Home (Farroupilha), Lumme (Torres), Lançamento no
+Centro de Torres, Vietro Centro Profissional (Farroupilha) e Alba.
+
+**Arquitetura:** o texto editorial é curado em `site/src/data/developments.ts`;
+foto, corretor e preço vêm do anúncio MSYS pelo `listingCode`, então não existe
+segunda cópia do dado. Trocar por um CMS depois significa implementar
+`DevelopmentRepository` e mais nada.
+
+**Validado rodando** (`npm run build && npm run start`, mais navegador headless):
+status das cinco rotas e 404 de slug inexistente, canonical, JSON-LD dos dois
+tipos, sitemap com 180 URLs, lead com `developmentSlug` chegando na API,
+galeria e lightbox com teclado, e conferência visual em 1440px e 390px.
+
+## Pendências desse módulo com o cliente
+
+1. **Material do Alba** — a página está de pé, mas sem foto. Hoje ela mostra um
+   aviso explícito de material em produção. Falta a incorporadora liberar as
+   imagens, e confirmar o endereço (a cidade foi inferida pelo WhatsApp da matriz).
+2. **Nome comercial do lançamento de Torres** — no MSYS ele não tem nome, só o
+   título "Lançamento no Centro de Torres". Se a incorporadora já batizou, trocar.
+3. **Atendimento de Torres** — os leads de Torres estão indo para a matriz de
+   Farroupilha. Cai na mesma pergunta em aberto de qual unidade atende cada
+   município.
+4. **Tabela de preços** — só Vegas, Lumme e Vietro têm valor de entrada. Os outros
+   dois estão como "sob consulta" de propósito, para não anunciar preço errado.
+
 ## Próximos passos
 
 1. Pedir ao cliente o feed XML do MSYS e trocar a origem em
@@ -195,5 +242,4 @@ demonstrar. `npm run sync -- --all` puxa o catálogo inteiro.
 2. Ligar a entrega de lead: e-mail e/ou webhook do MSYS em `/api/leads`
 3. Mapa na ficha e na busca (falta geocodificar, o MSYS não expõe lat/lng)
 4. Logo em vetor e definição da paleta final com o cliente
-5. LP de lançamento no padrão do Alba, dentro do domínio próprio
-6. Deploy em staging para o cliente aprovar
+5. Deploy em staging para o cliente aprovar

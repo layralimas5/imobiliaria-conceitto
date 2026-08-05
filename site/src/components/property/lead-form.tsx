@@ -6,6 +6,8 @@ import { LEAD_INTENTS, LEAD_INTENT_LABELS, leadSchema } from '@/domain/lead';
 
 interface LeadFormProps {
   propertyCode?: string;
+  /** Set on launch pages so the broker knows which development the lead came from. */
+  developmentSlug?: string;
   className?: string;
   defaultIntent?: (typeof LEAD_INTENTS)[number];
 }
@@ -14,6 +16,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 export function LeadForm({
   propertyCode,
+  developmentSlug,
   className = '',
   defaultIntent = 'visita',
 }: LeadFormProps) {
@@ -34,6 +37,7 @@ export function LeadForm({
       message: String(form.get('message') ?? ''),
       website: String(form.get('website') ?? ''),
       propertyCode,
+      developmentSlug,
     };
 
     const parsed = leadSchema.safeParse(candidate);

@@ -11,8 +11,9 @@ export function SiteHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const isHome = pathname === '/';
-  const isTransparent = isHome && !isScrolled && !isOpen;
+  // Pages that open with a full-bleed hero let the header sit over the image.
+  const hasImmersiveHero = pathname === '/' || /^\/lancamentos\/[^/]+$/.test(pathname);
+  const isTransparent = hasImmersiveHero && !isScrolled && !isOpen;
 
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 24);
