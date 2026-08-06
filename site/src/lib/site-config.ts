@@ -84,6 +84,11 @@ export const SITE = {
   url: 'https://imobiliariaconceitto.com.br',
   description:
     'Imobiliária em Farroupilha e Bento Gonçalves. Casas, apartamentos, terrenos e imóveis comerciais para comprar ou alugar na Serra Gaúcha.',
+  /**
+   * Área do cliente do MSYS Imob, onde proprietários e inquilinos acompanham
+   * contratos e repasses. É o mesmo destino que o site atual já usa.
+   */
+  clientAreaUrl: 'https://msysimob.com.br/msys-imob-web/areacliente',
 } as const;
 
 /**

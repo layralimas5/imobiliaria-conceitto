@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BRANCHES, NAV_LINKS, SITE } from '@/lib/site-config';
+import { FacebookIcon, InstagramIcon } from '@/components/layout/social-icons';
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -14,6 +15,32 @@ export function SiteFooter() {
             administração com quem conhece cada bairro da região.
           </p>
           <p className="mt-6 text-xs text-brand-100/60">{SITE.creci}</p>
+
+          <ul className="mt-4 space-y-2.5">
+            {BRANCHES.map((branch) => (
+              <li key={branch.id} className="flex items-center gap-3">
+                <span className="w-32 text-xs text-brand-100/55">{branch.city}</span>
+                <a
+                  href={branch.instagram}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={`Instagram da unidade ${branch.city}`}
+                  className="text-brand-100/70 transition-colors hover:text-white"
+                >
+                  <InstagramIcon />
+                </a>
+                <a
+                  href={branch.facebook}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  aria-label={`Facebook da unidade ${branch.city}`}
+                  className="text-brand-100/70 transition-colors hover:text-white"
+                >
+                  <FacebookIcon />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <nav aria-label="Navegação do rodapé">
@@ -47,24 +74,6 @@ export function SiteFooter() {
               >
                 {branch.phone}
               </a>
-              <div className="mt-3 flex gap-4 text-xs text-brand-100/70">
-                <a
-                  href={branch.instagram}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="transition-colors hover:text-white"
-                >
-                  Instagram
-                </a>
-                <a
-                  href={branch.facebook}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="transition-colors hover:text-white"
-                >
-                  Facebook
-                </a>
-              </div>
             </address>
           ))}
         </div>
@@ -73,9 +82,11 @@ export function SiteFooter() {
       <div className="border-t border-white/10">
         <div className="container-page flex flex-col gap-2 py-6 text-xs text-brand-100/50 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {year} {SITE.legalName} — CNPJ {SITE.cnpj}
+            © {year} {SITE.name} — CNPJ {SITE.cnpj}
           </p>
-          <p>{SITE.creci}</p>
+          <p>
+            Desenvolvido por <strong className="font-medium text-brand-100/80">Layra Lima</strong>
+          </p>
         </div>
       </div>
     </footer>
