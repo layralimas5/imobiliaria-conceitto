@@ -30,7 +30,7 @@ export function DevelopmentCard({
     <article
       className={`group relative flex flex-col overflow-hidden rounded-card border border-line bg-surface shadow-card transition-all duration-300 hover:-translate-y-0.5 hover:border-line-strong hover:shadow-card-hover ${className}`}
     >
-      <div className="relative aspect-[4/3] overflow-hidden bg-forest-900">
+      <div className="relative aspect-[4/3] overflow-hidden bg-brand-900">
         {cover ? (
           <Image
             src={cover.url}

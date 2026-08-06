@@ -235,7 +235,7 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
                     >
                       <span
                         aria-hidden
-                        className="size-1.5 shrink-0 rounded-full bg-forest-500"
+                        className="size-1.5 shrink-0 rounded-full bg-brand-500"
                       />
                       {feature}
                     </li>

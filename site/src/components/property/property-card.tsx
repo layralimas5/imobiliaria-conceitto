@@ -58,7 +58,7 @@ export function PropertyCard({
               </span>
             ) : null}
             {property.operations.length > 1 ? (
-              <span className="rounded-full bg-forest-700/90 px-2.5 py-1 text-[0.6875rem] font-medium uppercase tracking-wider text-white">
+              <span className="rounded-full bg-brand-700/90 px-2.5 py-1 text-[0.6875rem] font-medium uppercase tracking-wider text-white">
                 Venda e locação
               </span>
             ) : null}

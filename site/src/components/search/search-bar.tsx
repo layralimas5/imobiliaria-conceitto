@@ -41,7 +41,7 @@ export function SearchBar({
 
   const isHero = variant === 'hero';
   const fieldClass =
-    'h-12 w-full rounded-lg border border-line bg-surface px-3.5 text-sm text-ink transition-colors focus:border-forest-500 md:h-14';
+    'h-12 w-full rounded-lg border border-line bg-surface px-3.5 text-sm text-ink transition-colors focus:border-brand-500 md:h-14';
 
   return (
     <form
@@ -57,7 +57,9 @@ export function SearchBar({
       <div
         role="group"
         aria-label="Tipo de negócio"
-        className="mb-3 inline-flex rounded-lg bg-surface-muted p-1"
+        className={`mb-3 inline-flex rounded-lg bg-surface-muted p-1 ${
+          isHero ? 'mx-auto flex w-fit' : ''
+        }`}
       >
         {(['venda', 'locacao'] as const).map((value) => (
           <button
@@ -131,7 +133,7 @@ export function SearchBar({
 
         <button
           type="submit"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-forest-700 px-6 text-sm font-medium text-white transition-colors hover:bg-forest-600 md:h-14"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand-700 px-6 text-sm font-medium text-white transition-colors hover:bg-brand-600 md:h-14"
         >
           <Search className="size-4" aria-hidden />
           Buscar

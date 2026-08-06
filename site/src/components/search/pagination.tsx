@@ -46,7 +46,7 @@ export function Pagination({ query, basePath, page, totalPages }: PaginationProp
             aria-current={entry === page ? 'page' : undefined}
             className={`inline-flex size-10 items-center justify-center rounded-lg border text-sm transition-colors ${
               entry === page
-                ? 'border-forest-700 bg-forest-700 text-white'
+                ? 'border-brand-700 bg-brand-700 text-white'
                 : 'border-line bg-surface hover:border-line-strong'
             }`}
           >

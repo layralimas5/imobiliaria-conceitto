@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, Phone, X } from 'lucide-react';
@@ -12,10 +13,13 @@ export function SiteHeader() {
   const [isScrolled, setIsScrolled] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
 
-  // Pages that open with a full-bleed hero let the header sit over the image.
-  const hasImmersiveHero = pathname === '/' || /^\/lancamentos\/[^/]+$/.test(pathname);
-  const isTransparent = hasImmersiveHero && !isScrolled && !isOpen;
-
+  /*
+   * The header used to go transparent over the full-bleed heroes. It no longer
+   * does: the logo is a bitmap with a flat plate baked in and hairline type, so
+   * it cannot be keyed onto dark photography without ghosting, and a knockout
+   * flattens the "C" mark into a solid block. A white or vector logo from the
+   * client brings the immersive header back — see briefing.md.
+   */
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 24);
     onScroll();
@@ -45,19 +49,20 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-colors duration-300 ${
-        isTransparent
-          ? 'bg-transparent text-white'
-          : 'border-b border-line bg-paper/85 text-ink backdrop-blur-md'
-      }`}
+      className={`sticky top-0 z-40 border-b text-ink transition-shadow duration-300 ${
+        isScrolled ? 'border-line bg-paper/95 shadow-sm' : 'border-line/70 bg-paper'
+      } backdrop-blur-md`}
     >
       <div className="container-page flex h-16 items-center justify-between gap-6 md:h-20">
-        <Link
-          href="/"
-          className="text-display text-2xl tracking-tight md:text-[1.75rem]"
-          aria-label="Conceitto, página inicial"
-        >
-          Conceitto
+        <Link href="/" aria-label="Conceitto, página inicial" className="shrink-0">
+          <Image
+            src="/imagens/logo.png"
+            alt="Imobiliária Conceitto"
+            width={291}
+            height={63}
+            priority
+            className="h-8 w-auto md:h-9"
+          />
         </Link>
 
         <nav aria-label="Navegação principal" className="hidden lg:block">
@@ -77,9 +82,7 @@ export function SiteHeader() {
                     {isActive ? (
                       <span
                         aria-hidden
-                        className={`absolute inset-x-0 -bottom-0.5 h-px ${
-                          isTransparent ? 'bg-white' : 'bg-forest-600'
-                        }`}
+                        className="absolute inset-x-0 -bottom-0.5 h-px bg-brand-600"
                       />
                     ) : null}
                   </Link>
@@ -94,11 +97,7 @@ export function SiteHeader() {
             href={whatsappLink({})}
             target="_blank"
             rel="noreferrer noopener"
-            className={`hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors sm:inline-flex ${
-              isTransparent
-                ? 'bg-white/12 text-white ring-1 ring-white/25 hover:bg-white/20'
-                : 'bg-forest-700 text-white hover:bg-forest-600'
-            }`}
+            className="hidden items-center gap-2 rounded-full bg-brand-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600 sm:inline-flex"
           >
             <Phone className="size-4" aria-hidden />
             Falar com corretor
@@ -135,7 +134,7 @@ export function SiteHeader() {
                     href={link.href}
                     onClick={() => setIsOpen(false)}
                     aria-current={pathname === link.href ? 'page' : undefined}
-                    className="block rounded-lg px-3 py-3 text-lg transition-colors hover:bg-surface-muted aria-[current=page]:font-medium aria-[current=page]:text-forest-700"
+                    className="block rounded-lg px-3 py-3 text-lg transition-colors hover:bg-surface-muted aria-[current=page]:font-medium aria-[current=page]:text-brand-700"
                   >
                     {link.label}
                   </Link>
@@ -146,7 +145,7 @@ export function SiteHeader() {
               href={whatsappLink({})}
               target="_blank"
               rel="noreferrer noopener"
-              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-forest-700 px-5 py-3 text-sm font-medium text-white"
+              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-700 px-5 py-3 text-sm font-medium text-white"
             >
               <Phone className="size-4" aria-hidden />
               Falar com corretor

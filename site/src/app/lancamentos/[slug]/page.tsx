@@ -73,7 +73,7 @@ export default async function DevelopmentPage(props: PageProps<'/lancamentos/[sl
       />
 
       {/* Hero */}
-      <section className="relative -mt-16 flex min-h-[38rem] items-end overflow-hidden md:-mt-20 md:min-h-[42rem]">
+      <section className="relative flex min-h-[32rem] items-end overflow-hidden md:min-h-[38rem]">
         {cover ? (
           <Image
             src={cover.url}
@@ -84,14 +84,14 @@ export default async function DevelopmentPage(props: PageProps<'/lancamentos/[sl
             className="object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-forest-900" />
+          <div className="absolute inset-0 bg-brand-900" />
         )}
         <div
           aria-hidden
           className="absolute inset-0 bg-gradient-to-t from-ink/88 via-ink/45 to-ink/55"
         />
 
-        <div className="container-page relative w-full pb-14 pt-28 md:pb-20">
+        <div className="container-page relative w-full pb-14 pt-20 md:pb-20 md:pt-24">
           <nav aria-label="Trilha de navegação" className="mb-6 text-sm text-white/60">
             <ol className="flex flex-wrap items-center gap-1.5">
               <li>
@@ -149,7 +149,7 @@ export default async function DevelopmentPage(props: PageProps<'/lancamentos/[sl
               href={developmentWhatsapp(development)}
               target="_blank"
               rel="noreferrer noopener"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-forest-900 transition-colors hover:bg-bronze-100"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-brand-900 transition-colors hover:bg-bronze-100"
             >
               Quero conhecer
               <ArrowRight className="size-4" aria-hidden />
@@ -276,7 +276,7 @@ export default async function DevelopmentPage(props: PageProps<'/lancamentos/[sl
                 <ul className="mt-8 grid gap-x-8 gap-y-3 sm:grid-cols-2">
                   {development.amenities.map((amenity) => (
                     <li key={amenity} className="flex items-start gap-3 text-sm text-ink-soft">
-                      <Check className="mt-0.5 size-4 shrink-0 text-forest-600" aria-hidden />
+                      <Check className="mt-0.5 size-4 shrink-0 text-brand-600" aria-hidden />
                       {amenity}
                     </li>
                   ))}

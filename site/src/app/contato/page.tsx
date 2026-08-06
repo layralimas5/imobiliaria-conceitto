@@ -47,7 +47,7 @@ export default function ContatoPage() {
                   href={whatsappLink({ city: branch.id, operation: 'venda' })}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="rounded-full bg-forest-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-forest-600"
+                  className="rounded-full bg-brand-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-600"
                 >
                   WhatsApp vendas
                 </a>

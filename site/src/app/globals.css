@@ -3,8 +3,8 @@
 /*
  * Conceitto design tokens.
  *
- * Warm off-white paper, near-black ink, deep forest green as the brand accent
- * and a muted bronze for highlights. The palette stays quiet on purpose: the
+ * Warm off-white paper, near-black ink, the brand red from the logo, held back
+ * in saturation, and a muted bronze for highlights. The palette stays quiet on purpose: the
  * property photography is the loud element on every page.
  */
 @theme {
@@ -19,12 +19,17 @@
   --color-line: #e5e0d6;
   --color-line-strong: #d3ccbe;
 
-  --color-forest-50: #eef2ef;
-  --color-forest-100: #d6e0d8;
-  --color-forest-500: #2c5446;
-  --color-forest-600: #234438;
-  --color-forest-700: #1a332a;
-  --color-forest-900: #101f1a;
+  /*
+   * Brand red, taken from the Conceitto logo (#af1917) and pulled down in
+   * saturation so large surfaces read as a warm brick instead of a signal red.
+   * The logo keeps the vivid original; the interface uses these muted steps.
+   */
+  --color-brand-50: #faf1f0;
+  --color-brand-100: #ecd6d3;
+  --color-brand-500: #9c4640;
+  --color-brand-600: #85372f;
+  --color-brand-700: #6f2e28;
+  --color-brand-900: #3a1714;
 
   --color-bronze-100: #f0e6d9;
   --color-bronze-400: #b08b5c;
@@ -58,14 +63,14 @@
 
   /* Visible focus everywhere, including for mouse users on form controls. */
   :focus-visible {
-    outline: 2px solid var(--color-forest-500);
+    outline: 2px solid var(--color-brand-500);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
   ::selection {
-    background-color: var(--color-forest-100);
-    color: var(--color-forest-900);
+    background-color: var(--color-brand-100);
+    color: var(--color-brand-900);
   }
 }
 
@@ -134,8 +139,8 @@
     transform: translate(-50%, -100%);
     white-space: nowrap;
     border-radius: 999px;
-    border: 1px solid var(--color-forest-700);
-    background-color: var(--color-forest-700);
+    border: 1px solid var(--color-brand-700);
+    background-color: var(--color-brand-700);
     padding: 0.25rem 0.5rem;
     font-size: 0.6875rem;
     font-weight: 600;

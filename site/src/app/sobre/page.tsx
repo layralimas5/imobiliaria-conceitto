@@ -121,7 +121,7 @@ export default async function SobrePage() {
       <div className="mt-16 flex flex-wrap gap-3">
         <Link
           href="/comprar"
-          className="rounded-full bg-forest-700 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-forest-600"
+          className="rounded-full bg-brand-700 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-600"
         >
           Ver imóveis à venda
         </Link>

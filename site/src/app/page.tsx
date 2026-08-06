@@ -23,7 +23,7 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative -mt-16 flex min-h-[46rem] items-end overflow-hidden md:-mt-20 md:min-h-[44rem]">
+      <section className="relative flex min-h-[38rem] items-end overflow-hidden md:min-h-[40rem]">
         {heroPhoto ? (
           <Image
             src={heroPhoto.url}
@@ -34,14 +34,14 @@ export default async function HomePage() {
             className="object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-forest-900" />
+          <div className="absolute inset-0 bg-brand-900" />
         )}
         <div
           aria-hidden
           className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/45 to-ink/60"
         />
 
-        <div className="container-page relative w-full pb-12 pt-28 md:pb-16">
+        <div className="container-page relative w-full pb-12 pt-20 md:pb-16 md:pt-24">
           <div className="max-w-2xl">
             <p className="text-eyebrow text-white/70">
               {SITE.region} · desde {SITE.foundedYear}
@@ -57,7 +57,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="mt-10 max-w-4xl">
+          <div className="mx-auto mt-10 w-full max-w-4xl">
             <SearchBar cities={saleFacets.cities} types={saleFacets.types} variant="hero" />
           </div>
         </div>
@@ -222,7 +222,7 @@ export default async function HomePage() {
                 key={item.title}
                 className="rounded-card border border-line bg-surface p-6 shadow-card"
               >
-                <item.icon className="size-5 text-forest-600" aria-hidden />
+                <item.icon className="size-5 text-brand-600" aria-hidden />
                 <h3 className="mt-4 font-medium">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-ink-soft">{item.text}</p>
               </li>
@@ -232,7 +232,7 @@ export default async function HomePage() {
       </section>
 
       {/* Owner CTA */}
-      <section className="bg-forest-900 py-20 text-white md:py-24">
+      <section className="bg-brand-900 py-20 text-white md:py-24">
         <div className="container-page grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <p className="text-eyebrow text-white/60">Para proprietários</p>
@@ -247,7 +247,7 @@ export default async function HomePage() {
           <div className="flex flex-wrap gap-3 lg:justify-end">
             <Link
               href="/anuncie"
-              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-forest-900 transition-colors hover:bg-bronze-100"
+              className="inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-medium text-brand-900 transition-colors hover:bg-bronze-100"
             >
               Quero anunciar meu imóvel
               <ArrowRight className="size-4" aria-hidden />

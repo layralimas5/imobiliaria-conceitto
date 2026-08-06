@@ -12,7 +12,7 @@ export default function NotFound() {
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
           href="/comprar"
-          className="rounded-full bg-forest-700 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-forest-600"
+          className="rounded-full bg-brand-700 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-600"
         >
           Imóveis à venda
         </Link>

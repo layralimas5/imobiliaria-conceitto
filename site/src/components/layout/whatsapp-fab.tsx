@@ -23,7 +23,7 @@ export function WhatsappFab() {
       target="_blank"
       rel="noreferrer noopener"
       aria-label="Falar com a Conceitto pelo WhatsApp"
-      className={`fixed bottom-5 right-5 z-40 inline-flex size-14 items-center justify-center rounded-full bg-forest-700 text-white shadow-panel transition-all duration-300 hover:bg-forest-600 ${
+      className={`fixed bottom-5 right-5 z-40 inline-flex size-14 items-center justify-center rounded-full bg-brand-700 text-white shadow-panel transition-all duration-300 hover:bg-brand-600 ${
         isVisible
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-3 opacity-0'

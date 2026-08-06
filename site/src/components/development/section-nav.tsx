@@ -57,7 +57,7 @@ export function SectionNav({ sections }: SectionNavProps) {
                   aria-current={isActive ? 'true' : undefined}
                   className={`inline-block whitespace-nowrap rounded-full px-4 py-2 text-sm transition-colors ${
                     isActive
-                      ? 'bg-forest-700 text-white'
+                      ? 'bg-brand-700 text-white'
                       : 'text-ink-soft hover:bg-surface-muted hover:text-ink'
                   }`}
                 >

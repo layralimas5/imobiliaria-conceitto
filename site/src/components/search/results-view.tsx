@@ -103,7 +103,7 @@ function ViewTab({
       aria-controls={panelId}
       onClick={() => onSelect(value)}
       className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-        selected ? 'bg-forest-700 text-white' : 'text-ink-soft hover:text-ink'
+        selected ? 'bg-brand-700 text-white' : 'text-ink-soft hover:text-ink'
       }`}
     >
       <Icon className="size-4" aria-hidden />

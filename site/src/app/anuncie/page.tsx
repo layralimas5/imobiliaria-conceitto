@@ -57,7 +57,7 @@ export default function AnunciePage() {
                 className="rounded-card border border-line bg-surface p-6 shadow-card"
               >
                 <div className="flex items-center gap-3">
-                  <step.icon className="size-5 text-forest-600" aria-hidden />
+                  <step.icon className="size-5 text-brand-600" aria-hidden />
                   <span className="text-xs font-medium text-ink-faint">
                     Etapa {index + 1}
                   </span>

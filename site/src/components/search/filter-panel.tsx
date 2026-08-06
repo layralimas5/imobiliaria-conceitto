@@ -205,7 +205,7 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
             onChange={(event) =>
               setDraft({ ...draft, exclusiveOnly: event.target.checked })
             }
-            className="size-4 rounded border-line-strong text-forest-600 focus:ring-forest-500"
+            className="size-4 rounded border-line-strong text-brand-600 focus:ring-brand-500"
           />
           Somente imóveis exclusivos
         </label>
@@ -224,7 +224,7 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
         <SlidersHorizontal className="size-4" aria-hidden />
         Filtros
         {activeCount > 0 ? (
-          <span className="rounded-full bg-forest-700 px-1.5 py-0.5 text-xs text-white">
+          <span className="rounded-full bg-brand-700 px-1.5 py-0.5 text-xs text-white">
             {activeCount}
           </span>
         ) : null}
@@ -249,7 +249,7 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
           <button
             type="button"
             onClick={() => apply(draft)}
-            className="mt-7 h-11 w-full rounded-lg bg-forest-700 text-sm font-medium text-white transition-colors hover:bg-forest-600"
+            className="mt-7 h-11 w-full rounded-lg bg-brand-700 text-sm font-medium text-white transition-colors hover:bg-brand-600"
           >
             Aplicar filtros
           </button>
@@ -298,7 +298,7 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
               <button
                 type="button"
                 onClick={() => apply(draft)}
-                className="h-12 flex-[2] rounded-lg bg-forest-700 text-sm font-medium text-white"
+                className="h-12 flex-[2] rounded-lg bg-brand-700 text-sm font-medium text-white"
               >
                 Ver {resultCount} imóveis
               </button>
@@ -337,7 +337,7 @@ function Chip({
       aria-pressed={isOn}
       className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
         isOn
-          ? 'border-forest-600 bg-forest-600 text-white'
+          ? 'border-brand-600 bg-brand-600 text-white'
           : 'border-line bg-surface text-ink-soft hover:border-line-strong hover:text-ink'
       }`}
     >

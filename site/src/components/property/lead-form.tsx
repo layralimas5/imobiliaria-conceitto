@@ -88,9 +88,9 @@ export function LeadForm({
         ref={confirmationRef}
         role="status"
         tabIndex={-1}
-        className={`rounded-lg border border-forest-100 bg-forest-50 p-5 text-center ${className}`}
+        className={`rounded-lg border border-brand-100 bg-brand-50 p-5 text-center ${className}`}
       >
-        <Check className="mx-auto size-6 text-forest-600" aria-hidden />
+        <Check className="mx-auto size-6 text-brand-600" aria-hidden />
         <p className="mt-3 text-sm font-medium">Recebemos seu contato</p>
         <p className="mt-1 text-sm text-ink-soft">
           Um corretor responde em horário comercial.
@@ -174,7 +174,7 @@ export function LeadForm({
       <button
         type="submit"
         disabled={status === 'submitting'}
-        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-forest-700 text-sm font-medium text-white transition-colors hover:bg-forest-600 disabled:opacity-60"
+        className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-brand-700 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:opacity-60"
       >
         {status === 'submitting' ? (
           <>
@@ -195,7 +195,7 @@ export function LeadForm({
 
 function inputClass(error: string | undefined): string {
   return `h-11 w-full rounded-lg border bg-surface px-3 text-sm transition-colors ${
-    error ? 'border-red-500' : 'border-line focus:border-forest-500'
+    error ? 'border-red-500' : 'border-line focus:border-brand-500'
   }`;
 }
 

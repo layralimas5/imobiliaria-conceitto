@@ -51,7 +51,7 @@ export function ContactCard({
           href={whatsappLink({ city, operation: primaryOperation, propertyCode: code })}
           target="_blank"
           rel="noreferrer noopener"
-          className="mt-5 flex h-12 w-full items-center justify-center rounded-lg bg-forest-700 text-sm font-medium text-white transition-colors hover:bg-forest-600"
+          className="mt-5 flex h-12 w-full items-center justify-center rounded-lg bg-brand-700 text-sm font-medium text-white transition-colors hover:bg-brand-600"
         >
           Falar no WhatsApp
         </a>
