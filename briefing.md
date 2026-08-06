@@ -296,6 +296,56 @@ implementado:
    canto quadrado. O primeiro era `min-width: auto` do grid, o segundo uma
    sintaxe de Tailwind v3 (`rounded-[--radius-card]`) que a v4 não resolve.
 
+## Quarta entrega (06/08/2026) — marca e fotografia
+
+**Logo no ar.** O arquivo veio em PNG com fundo cinza chapado e sem canal
+alfa. O recorte é flood fill a partir da borda, então o branco dentro do "C"
+sobrevive, e a franja antisserrilhada é desmisturada do cinza em vez de só
+receber alfa menor.
+
+**O cabeçalho deixou de ser transparente sobre o hero.** Não foi escolha
+estética: a tipografia do "IMOBILIÁRIA" tem 1px de traço, então em cor sobre
+foto escura ela fantasmiza, e o knockout branco achata a marca "C" num bloco
+sólido sem o C. Com um logo branco ou em vetor o cabeçalho imersivo volta.
+
+**Paleta no vermelho da marca.** O token `forest-*` virou `brand-*`, e
+`brand-700` é o `#af1917` exato do logo, então botão e marca são o mesmo
+vermelho. Passa 7:1 contra branco. A primeira tentativa dessaturou o
+vermelho para não gritar em superfície grande, ficou marrom e foi descartada.
+
+**Filtro do hero centralizado**, com o alternador Comprar/Alugar junto.
+
+**Título dos imóveis igual ao site oficial.** Eu havia convertido de caixa
+alta para title case. O site oficial publica em caixa alta, e é esse o nome
+que vale. Revertido.
+
+**Fotografia saiu do S3 da Mold Systems.** O site não renderiza mais nenhuma
+imagem do bucket. A troca acontece num ponto só, na saída do repositório: as
+fotos vêm de `public/imagens/imoveis` pelo código do imóvel, e todo consumidor
+(card, galeria, Open Graph, JSON-LD, lançamento) segue sem saber a origem. A
+foto do corretor mora no mesmo bucket e caiu junto.
+
+Os estados vazios foram desenhados, porque hoje são o padrão nas 1498 fichas:
+o card mostra o bairro em serifada sobre degradê quente, e a ficha não reserva
+mais área de foto (um bloco morto de tela inteira empurrava preço e CTA para
+fora da dobra). Destaques e imóveis parecidos passaram a preferir foto em vez
+de exigir, senão a home esvaziaria.
+
+**Capa da home por arquivo.** A primeira imagem de `public/imagens/banner`
+vira o fundo do hero. A Lay já subiu a dela.
+
+## Pendências dessa entrega
+
+1. **Fotos dos imóveis.** As pastas estão vazias e a Lay vai preencher por
+   fora. O `LEIA-ME.txt` em `public/imagens/imoveis` documenta a convenção de
+   nome. Enquanto não houver arquivo, nenhuma ficha tem foto.
+2. **Vídeo no banner.** Há um `banner video.mp4` (2,5 MB) na pasta do banner
+   que o site não usa: o hero só lê imagem. Falta decidir se o hero vira vídeo.
+3. **Peso dos arquivos.** A imagem do banner tem 2,2 MB em PNG. O otimizador
+   do Next converte para AVIF/WebP no build, então o que trafega é bem menor,
+   mas um JPEG de origem pouparia tempo de build.
+4. **Logo em branco ou vetor**, para o cabeçalho imersivo voltar.
+
 ## Próximos passos
 
 1. **Deploy em staging.** É o único item da terceira entrega que não fechou: a
