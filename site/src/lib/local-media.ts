@@ -32,9 +32,32 @@ function firstImageIn(...segments: readonly string[]): string | null {
   }
 }
 
+const VIDEO_EXTENSIONS = new Set(['.mp4', '.webm', '.mov']);
+
 /** Art-directed cover for the home hero, or null while the folder is empty. */
 export function heroImage(): string | null {
   return firstImageIn('imagens', 'banner');
+}
+
+/**
+ * Motion version of the hero, when one is on file.
+ *
+ * Served byte-for-byte out of `public/` — no transcode, no re-encode, so the
+ * quality is exactly what was handed over. The still stays in play as the
+ * poster: it is what shows on the first frame, on a failed load, and for
+ * anyone who asked the system for reduced motion.
+ */
+export function heroVideo(): string | null {
+  const directory = path.join(process.cwd(), 'public', 'imagens', 'banner');
+  try {
+    const file = fs
+      .readdirSync(directory)
+      .filter((name) => VIDEO_EXTENSIONS.has(path.extname(name).toLowerCase()))
+      .sort()[0];
+    return file ? publicUrl('imagens', 'banner', file) : null;
+  } catch {
+    return null;
+  }
 }
 
 const LISTINGS_DIR = path.join(process.cwd(), 'public', 'imagens', 'imoveis');

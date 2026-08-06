@@ -3,21 +3,21 @@
 /*
  * Conceitto design tokens.
  *
- * Warm off-white paper, near-black ink, the brand red from the logo
+ * White page, near-black ink, the brand red from the logo
  * and a muted bronze for highlights. The palette stays quiet on purpose: the
  * property photography is the loud element on every page.
  */
 @theme {
-  --color-paper: #faf8f5;
+  --color-paper: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-muted: #f3efe9;
+  --color-surface-muted: #f5f4f2;
 
   --color-ink: #14150f;
   --color-ink-soft: #55564d;
   --color-ink-faint: #8a8b80;
 
-  --color-line: #e5e0d6;
-  --color-line-strong: #d3ccbe;
+  --color-line: #e6e4df;
+  --color-line-strong: #d4d1ca;
 
   /*
    * Brand red, straight off the Conceitto logo. `brand-700` IS the logo's
@@ -179,5 +179,55 @@
   .leaflet-control-attribution {
     background-color: rgb(255 255 255 / 0.85);
     font-size: 0.625rem;
+  }
+}
+
+/*
+ * Hover pulse.
+ *
+ * A slow breath rather than a bounce: the card grows about 2% and settles, on
+ * a loop, for as long as the pointer stays. The reduced-motion block at the end
+ * of this file collapses the duration, so it degrades to a plain hover state.
+ */
+@keyframes conceitto-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: var(--shadow-card);
+  }
+  50% {
+    transform: scale(1.025);
+    box-shadow: var(--shadow-card-hover);
+  }
+}
+
+@keyframes conceitto-pulse-tight {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+@layer components {
+  .pulse-on-hover {
+    transition: transform 0.3s var(--ease-out-soft);
+  }
+
+  .pulse-on-hover:hover,
+  .pulse-on-hover:focus-visible {
+    animation: conceitto-pulse 1.6s var(--ease-out-soft) infinite;
+  }
+
+  /* For buttons: no shadow to animate, and a shorter, livelier cycle. */
+  .pulse-on-hover-tight {
+    transition: transform 0.3s var(--ease-out-soft);
+  }
+
+  .pulse-on-hover-tight:hover,
+  .pulse-on-hover-tight:focus-visible {
+    animation: conceitto-pulse-tight 1.1s var(--ease-out-soft) infinite;
   }
 }
