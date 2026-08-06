@@ -11,6 +11,8 @@ import { PropertyCard } from '@/components/property/property-card';
 import { FilterPanel } from '@/components/search/filter-panel';
 import { SortSelect } from '@/components/search/sort-select';
 import { Pagination } from '@/components/search/pagination';
+import { ResultsView } from '@/components/search/results-view';
+import { toMapMarkers } from '@/components/map/map-marker';
 
 interface SearchResultsProps {
   operation: Operation;
@@ -34,6 +36,7 @@ export async function SearchResults({
   ]);
 
   const activeCount = countActiveFilters(query);
+  const markers = toMapMarkers(results.items, operation);
 
   return (
     <div className="container-page py-10 md:py-14">
@@ -53,7 +56,9 @@ export async function SearchResults({
           resultCount={results.total}
         />
 
-        <div>
+        {/* min-w-0: a grid item defaults to min-width:auto, and the map would
+            otherwise push the column past the page container. */}
+        <div className="min-w-0">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <p className="text-sm text-ink-soft">
               <strong className="font-medium text-ink">{results.total}</strong>{' '}
@@ -72,18 +77,24 @@ export async function SearchResults({
             <EmptyState basePath={basePath} hasFilters={activeCount > 0} />
           ) : (
             <>
-              <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                {results.items.map((property, index) => (
-                  <li key={property.code} className="flex">
-                    <PropertyCard
-                      property={property}
-                      operation={operation}
-                      priority={index < 3}
-                      className="w-full"
-                    />
-                  </li>
-                ))}
-              </ul>
+              <ResultsView
+                markers={markers}
+                plottedOf={{ plotted: markers.length, total: results.items.length }}
+                list={
+                  <ul className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                    {results.items.map((property, index) => (
+                      <li key={property.code} className="flex">
+                        <PropertyCard
+                          property={property}
+                          operation={operation}
+                          priority={index < 3}
+                          className="w-full"
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                }
+              />
               <Pagination
                 query={query}
                 basePath={basePath}

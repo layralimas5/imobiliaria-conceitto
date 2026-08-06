@@ -12,10 +12,17 @@ import {
   type Property,
 } from '@/domain/property';
 import { TYPE_LABELS } from '@/domain/search';
-import { formatArea, formatMonthlyCost, formatPrice } from '@/lib/format';
+import {
+  formatArea,
+  formatListingTitle,
+  formatMonthlyCost,
+  formatPrice,
+} from '@/lib/format';
 import { PropertyGallery } from '@/components/property/property-gallery';
 import { PropertyCard } from '@/components/property/property-card';
 import { ContactCard } from '@/components/property/contact-card';
+import { PropertyMap } from '@/components/map/property-map';
+import { toMapMarker } from '@/components/map/map-marker';
 import { SITE } from '@/lib/site-config';
 
 interface Params {
@@ -63,12 +70,14 @@ export async function generateMetadata(
     .filter(Boolean)
     .join(' · ');
 
+  const title = formatListingTitle(property.title);
+
   return {
-    title: property.title || `Imóvel ${property.code}`,
+    title: title || `Imóvel ${property.code}`,
     description,
     alternates: { canonical },
     openGraph: {
-      title: property.title,
+      title,
       description,
       url: canonical,
       images: property.photos.slice(0, 1).map((photo) => ({ url: photo.url })),
@@ -96,6 +105,9 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
     property.pricing.condoFee,
     property.pricing.propertyTax,
   );
+
+  const mapMarker = toMapMarker(summary, operation);
+  const displayTitle = formatListingTitle(property.title);
 
   const specs = [
     { icon: Maximize, label: 'Área construída', value: formatArea(property.areas.built) },
@@ -162,7 +174,7 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
           </ol>
         </nav>
 
-        <PropertyGallery photos={property.photos} title={property.title} />
+        <PropertyGallery photos={property.photos} title={displayTitle} />
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_22rem] lg:gap-16">
           <div>
@@ -178,7 +190,7 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
                   ? `${property.address.neighborhood}, ${property.address.city}`
                   : property.address.city}
               </h1>
-              <p className="mt-3 text-lg text-ink-soft">{property.title}</p>
+              <p className="mt-3 text-lg text-ink-soft">{displayTitle}</p>
             </header>
 
             {specs.length > 0 ? (
@@ -260,6 +272,24 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
                 </p>
               </section>
             ) : null}
+
+            {mapMarker ? (
+              <section className="mt-10">
+                <h2 className="text-display text-2xl">Localização</h2>
+                <p className="mt-3 text-base text-ink-soft">
+                  {property.address.neighborhood
+                    ? `${property.address.neighborhood}, ${property.address.city}`
+                    : property.address.city}{' '}
+                  — {property.address.state}
+                </p>
+                <PropertyMap
+                  markers={[mapMarker]}
+                  showUncertainty
+                  ariaLabel={`Mapa do bairro ${property.address.neighborhood} em ${property.address.city}`}
+                  className="mt-5 h-[22rem] sm:h-[26rem]"
+                />
+              </section>
+            ) : null}
           </div>
 
           <ContactCard
@@ -293,7 +323,7 @@ function buildJsonLd(property: Property, price: number | null) {
   return {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',
-    name: property.title,
+    name: formatListingTitle(property.title),
     description: property.description.slice(0, 500),
     url: `${SITE.url}${propertyPath(summary)}`,
     datePosted: property.publishedAt,

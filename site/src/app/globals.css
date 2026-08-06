@@ -120,3 +120,58 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/*
+ * Map.
+ *
+ * Leaflet ships its own opinionated chrome. These rules pull the parts that show
+ * (pins, popup, controls, attribution) onto the Conceitto palette and type scale,
+ * so the map reads as part of the page instead of a widget dropped into it.
+ */
+@layer components {
+  .conceitto-pin > span {
+    display: inline-block;
+    transform: translate(-50%, -100%);
+    white-space: nowrap;
+    border-radius: 999px;
+    border: 1px solid var(--color-forest-700);
+    background-color: var(--color-forest-700);
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+    color: #ffffff;
+    box-shadow: 0 2px 8px -2px rgb(20 21 15 / 0.4);
+    transition: background-color 0.15s var(--ease-out-soft);
+  }
+
+  .conceitto-pin:hover > span,
+  .conceitto-pin:focus-visible > span {
+    background-color: var(--color-bronze-600);
+    border-color: var(--color-bronze-600);
+  }
+
+  .leaflet-container {
+    font-family: var(--font-sans);
+    background-color: var(--color-surface-muted);
+  }
+
+  .leaflet-popup-content-wrapper {
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .leaflet-popup-content {
+    margin: 0.75rem 0.875rem;
+  }
+
+  .leaflet-bar a,
+  .leaflet-control-attribution {
+    color: var(--color-ink-soft);
+  }
+
+  .leaflet-control-attribution {
+    background-color: rgb(255 255 255 / 0.85);
+    font-size: 0.625rem;
+  }
+}
