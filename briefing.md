@@ -235,11 +235,86 @@ galeria e lightbox com teclado, e conferência visual em 1440px e 390px.
 4. **Tabela de preços** — só Vegas, Lumme e Vietro têm valor de entrada. Os outros
    dois estão como "sob consulta" de propósito, para não anunciar preço errado.
 
+## Terceira entrega (06/08/2026) — catálogo completo, mapa e entrega de lead
+
+**Catálogo inteiro no ar.** 1498 imóveis, contra os 119 da amostra. O sitemap
+publicado na origem lista 1500; dois ficaram de fora por não terem nenhuma foto.
+
+**Mapa.** O MSYS não expõe coordenada, então `scripts/geocode-catalog.mjs`
+geocodifica no nível do bairro pelo Nominatim (OpenStreetMap, sem chave e sem
+cobrança), com cache versionado. Uma consulta por par cidade + bairro: 149
+consultas cobrindo os 1498 imóveis. Os 149 bairros resolveram, 120 no nível do
+bairro e 29 caindo para o centro da cidade.
+
+A escolha de geocodificar por bairro não é uma limitação contornada, é a
+política do site: a ficha nunca publica o endereço exato, e o pin não pode
+afirmar mais do que isso. Imóveis do mesmo bairro recebem um deslocamento
+determinístico de até ~400 m derivado do código, para os pins não empilharem, e
+a UI escreve embaixo do mapa qual precisão está mostrando.
+
+Onde aparece: seção "Localização" na ficha, com círculo de incerteza, e uma aba
+Lista / Mapa na busca, plotando a página de resultados atual. Só a página, não o
+catálogo inteiro — 24 pins ficam legíveis sem clusterização e o navegador não
+recebe 1500 coordenadas. O Leaflet entra por import dinâmico, então as páginas
+sem mapa não carregam nada disso.
+
+**Entrega de lead.** `/api/leads` deixou de só logar. `src/lib/lead-delivery.ts`
+tem dois canais independentes ligados por variável de ambiente:
+
+- E-mail via Resend, roteado para a caixa da unidade que atende a cidade do
+  imóvel, com `reply_to` no e-mail do interessado e botão de WhatsApp montado
+- Webhook genérico, com o payload completo (lead, unidade, imóvel,
+  empreendimento) — é a porta de entrada do MSYS quando liberarem o endpoint
+
+Sem canal configurado o lead é validado, logado com aviso e a resposta é 200,
+para o site rodar antes das credenciais. Com canal configurado e todos falhando,
+a resposta é 502 e o formulário manda o visitante para o WhatsApp. Um lead nunca
+recebe confirmação verde que não mereceu.
+
+**Acessibilidade.** Passada de correção no que estava declarado mas não
+implementado:
+
+- O lightbox da galeria e o painel de filtros no mobile declaravam
+  `aria-modal` sem prender o foco. O Tab passeava pela página atrás do overlay e
+  o foco não voltava ao abrir/fechar. Corrigido com `useModalFocus`
+- Erros do formulário de lead agora estão amarrados ao campo por
+  `aria-describedby` + `aria-invalid`, e o foco vai para o primeiro campo
+  inválido no submit, e para a confirmação no sucesso
+- Menu mobile fecha com Escape devolvendo o foco ao botão, e marca a página
+  atual com `aria-current`
+
+**Três defeitos que só apareceram com o catálogo inteiro:**
+
+1. A home anunciava **1512 imóveis** somando as facetas de venda e locação, que
+   contam duas vezes quem é anunciado nas duas operações. São 1498. Agora vem de
+   `propertyRepository.count()`, que é a contagem distinta.
+2. O título do MSYS é digitado em caixa alta pela equipe, e o site publicava o
+   grito literal em 1498 fichas ("IMOBILIÁRIA CONCEITTO ALUGA-LINDO APARTAMENTO
+   NO BOTAFOGO"). `formatListingTitle` baixa para title case quando o texto é
+   predominantemente maiúsculo, e não encosta em título já bem escrito.
+3. O mapa transbordava a coluna de resultados na busca em desktop, e ficava com
+   canto quadrado. O primeiro era `min-width: auto` do grid, o segundo uma
+   sintaxe de Tailwind v3 (`rounded-[--radius-card]`) que a v4 não resolve.
+
 ## Próximos passos
 
-1. Pedir ao cliente o feed XML do MSYS e trocar a origem em
+1. **Deploy em staging.** É o único item da terceira entrega que não fechou: a
+   Vercel exige login interativo e não há credencial nessa máquina. O código
+   está pronto para subir — ver a seção "Deploy" do `site/README.md`, com Root
+   Directory em `site`.
+2. **Credencial de entrega de lead.** O transporte está implementado e testado
+   nos dois canais; falta só a chave. Uma conta Resend com o domínio verificado
+   resolve, ou a URL do webhook se preferir passar por n8n/MSYS.
+3. Pedir ao cliente o feed XML do MSYS e trocar a origem em
    `scripts/sync-catalog.mjs` (a interface `PropertyRepository` não muda)
-2. Ligar a entrega de lead: e-mail e/ou webhook do MSYS em `/api/leads`
-3. Mapa na ficha e na busca (falta geocodificar, o MSYS não expõe lat/lng)
 4. Logo em vetor e definição da paleta final com o cliente
-5. Deploy em staging para o cliente aprovar
+5. Confirmar quais municípios cada unidade atende. Com o catálogo inteiro no ar
+   isso deixou de ser detalhe: aparecem 22 cidades, incluindo litoral (Torres,
+   Capão da Canoa, Arroio do Sal, Xangri-lá, Passo de Torres) e Porto Alegre,
+   Canoas e Caxias. Hoje tudo que não é a região de Bento cai na matriz.
+6. **Foto do hero da home.** Sai automaticamente do primeiro destaque do MSYS, e
+   hoje caiu uma foto de prédio comum. Vale escolher uma imagem fixa à altura do
+   posicionamento premium.
+7. Trocar geração estática por ISR quando o feed chegar. Hoje são 1654 páginas
+   pré-renderizadas e o build leva ~6 min, então cada atualização de catálogo
+   exige deploy novo.
