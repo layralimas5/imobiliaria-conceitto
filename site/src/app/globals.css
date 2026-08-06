@@ -3,8 +3,8 @@
 /*
  * Conceitto design tokens.
  *
- * Warm off-white paper, near-black ink, the brand red from the logo, held back
- * in saturation, and a muted bronze for highlights. The palette stays quiet on purpose: the
+ * Warm off-white paper, near-black ink, the brand red from the logo
+ * and a muted bronze for highlights. The palette stays quiet on purpose: the
  * property photography is the loud element on every page.
  */
 @theme {
@@ -20,16 +20,17 @@
   --color-line-strong: #d3ccbe;
 
   /*
-   * Brand red, taken from the Conceitto logo (#af1917) and pulled down in
-   * saturation so large surfaces read as a warm brick instead of a signal red.
-   * The logo keeps the vivid original; the interface uses these muted steps.
+   * Brand red, straight off the Conceitto logo. `brand-700` IS the logo's
+   * #af1917, so a button and the mark next to it are the same red. It clears
+   * 7:1 against white, which is why the vivid original can carry text at all.
+   * 600 lightens for hover, 900 is the deep end for the footer.
    */
-  --color-brand-50: #faf1f0;
-  --color-brand-100: #ecd6d3;
-  --color-brand-500: #9c4640;
-  --color-brand-600: #85372f;
-  --color-brand-700: #6f2e28;
-  --color-brand-900: #3a1714;
+  --color-brand-50: #fdf1f0;
+  --color-brand-100: #f7d6d4;
+  --color-brand-500: #c9302c;
+  --color-brand-600: #c3211e;
+  --color-brand-700: #af1917;
+  --color-brand-900: #40100e;
 
   --color-bronze-100: #f0e6d9;
   --color-bronze-400: #b08b5c;

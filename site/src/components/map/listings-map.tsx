@@ -66,8 +66,8 @@ export default function ListingsMap({
             // Literal hex, not a token: Leaflet writes these as SVG presentation
             // attributes, which do not resolve CSS custom properties.
             pathOptions={{
-              color: '#9c4640',
-              fillColor: '#9c4640',
+              color: '#af1917',
+              fillColor: '#af1917',
               fillOpacity: 0.08,
               weight: 1,
             }}
