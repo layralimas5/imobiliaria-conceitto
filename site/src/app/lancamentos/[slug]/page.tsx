@@ -73,7 +73,7 @@ export default async function DevelopmentPage(props: PageProps<'/lancamentos/[sl
       />
 
       {/* Hero */}
-      <section className="relative flex min-h-[32rem] items-end overflow-hidden md:min-h-[38rem]">
+      <section className="relative -mt-16 flex min-h-[38rem] items-end overflow-hidden md:-mt-20 md:min-h-[44rem]">
         {cover ? (
           <Image
             src={cover.url}
@@ -91,7 +91,7 @@ export default async function DevelopmentPage(props: PageProps<'/lancamentos/[sl
           className="absolute inset-0 bg-gradient-to-t from-ink/88 via-ink/45 to-ink/55"
         />
 
-        <div className="container-page relative w-full pb-14 pt-20 md:pb-20 md:pt-24">
+        <div className="container-page relative w-full pb-14 pt-32 md:pb-20 md:pt-40">
           <nav aria-label="Trilha de navegação" className="mb-6 text-sm text-white/60">
             <ol className="flex flex-wrap items-center gap-1.5">
               <li>

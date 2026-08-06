@@ -29,7 +29,7 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative flex min-h-[38rem] items-end overflow-hidden md:min-h-[42rem]">
+      <section className="relative -mt-16 flex min-h-[44rem] items-end overflow-hidden md:-mt-20 md:min-h-[46rem]">
         {heroClip ? (
           <HeroMedia videoSrc={heroClip} posterSrc={heroSrc} />
         ) : heroSrc ? (
@@ -60,7 +60,7 @@ export default async function HomePage() {
           className="absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-ink/45"
         />
 
-        <div className="container-page relative w-full pb-28 pt-20 md:pb-32 md:pt-24">
+        <div className="container-page relative w-full pb-28 pt-32 md:pb-32 md:pt-40">
           <div className="max-w-2xl [text-shadow:0_1px_16px_rgb(20_21_15_/_0.45)]">
             <p className="text-eyebrow text-white/80">
               {SITE.region} · desde {SITE.foundedYear}
