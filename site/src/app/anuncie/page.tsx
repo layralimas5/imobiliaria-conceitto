@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Camera, ClipboardCheck, HandCoins, Megaphone } from 'lucide-react';
-import { LeadForm } from '@/components/property/lead-form';
+import { SubmissionForm } from '@/components/property/submission-form';
 
 export const metadata: Metadata = {
   title: 'Anuncie seu imóvel',
@@ -35,7 +35,7 @@ const STEPS = [
 export default function AnunciePage() {
   return (
     <div className="container-page py-14 md:py-20">
-      <div className="grid gap-14 lg:grid-cols-[1fr_26rem] lg:gap-20">
+      <div className="grid gap-14 lg:grid-cols-[1fr_34rem] lg:gap-20">
         <div>
           <header className="max-w-2xl">
             <p className="text-eyebrow">Para proprietários</p>
@@ -48,6 +48,12 @@ export default function AnunciePage() {
               Avaliação sem custo, fotos profissionais e divulgação ampla. Você acompanha
               cada etapa e decide sobre cada proposta.
             </p>
+            <a
+              href="#cadastrar"
+              className="mt-8 inline-flex h-12 items-center gap-2 rounded-full bg-brand-700 px-6 text-sm font-medium text-white transition-colors hover:bg-brand-600 lg:hidden"
+            >
+              Cadastrar meu imóvel
+            </a>
           </header>
 
           <ol className="mt-12 grid gap-6 sm:grid-cols-2">
@@ -78,12 +84,16 @@ export default function AnunciePage() {
           </section>
         </div>
 
-        <div className="rounded-card border border-line bg-surface p-7 shadow-card lg:sticky lg:top-24 lg:self-start">
-          <h2 className="text-display text-2xl">Pedir avaliação</h2>
-          <p className="mt-2 text-sm text-ink-soft">
-            Conte onde fica o imóvel e a gente entra em contato.
+        <div
+          id="cadastrar"
+          className="scroll-mt-28 rounded-card border border-line bg-surface p-7 shadow-card md:p-8"
+        >
+          <h2 className="text-display text-3xl">Cadastrar meu imóvel</h2>
+          <p className="mt-2 text-sm leading-relaxed text-ink-soft">
+            Preencha o que souber e anexe as fotos que tiver. O que faltar a gente
+            levanta na visita de avaliação.
           </p>
-          <LeadForm className="mt-6" defaultIntent="anunciar" />
+          <SubmissionForm className="mt-7" />
         </div>
       </div>
     </div>
