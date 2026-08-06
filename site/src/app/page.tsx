@@ -8,6 +8,7 @@ import { PropertyCard } from '@/components/property/property-card';
 import { DevelopmentCard } from '@/components/development/development-card';
 import { SearchBar } from '@/components/search/search-bar';
 import { BRANCHES, SITE } from '@/lib/site-config';
+import { heroImage } from '@/lib/local-media';
 
 export default async function HomePage() {
   const [featured, saleFacets, catalogSize, developments] = await Promise.all([
@@ -17,16 +18,19 @@ export default async function HomePage() {
     developmentRepository.featured(3),
   ]);
 
+  // A file in public/imagens/banner wins; otherwise the hero borrows the first
+  // featured listing's photography, as it did before.
   const heroPhoto = featured.find((property) => property.coverPhoto)?.coverPhoto ?? null;
+  const heroSrc = heroImage() ?? heroPhoto?.url ?? null;
   const topCities = saleFacets.cities.slice(0, 8);
 
   return (
     <>
       {/* Hero */}
       <section className="relative flex min-h-[38rem] items-end overflow-hidden md:min-h-[40rem]">
-        {heroPhoto ? (
+        {heroSrc ? (
           <Image
-            src={heroPhoto.url}
+            src={heroSrc}
             alt=""
             fill
             priority

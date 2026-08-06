@@ -1,4 +1,4 @@
-import { formatListingTitle, formatPriceCompact } from '@/lib/format';
+import { formatPriceCompact } from '@/lib/format';
 import {
   displayArea,
   pointOf,
@@ -45,7 +45,7 @@ export function toMapMarker(
     longitude: point.longitude,
     precision: point.precision,
     label: formatPriceCompact(priceFor(property.pricing, operation)),
-    title: formatListingTitle(property.title),
+    title: property.title,
     subtitle: [property.address.neighborhood, ...details].join(' · '),
     href: propertyPath(property),
   };

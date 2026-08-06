@@ -1,0 +1,10 @@
+Coloque aqui a foto de capa da home.
+
+A primeira imagem desta pasta (.jpg, .jpeg, .png, .webp ou .avif, em ordem
+alfabética) vira o fundo do banner. Sem nenhuma imagem aqui, o site usa a
+foto do primeiro imóvel em destaque do MSYS.
+
+Recomendado: 2400x1400 px ou maior, horizontal, com espaço livre à esquerda
+para o título e à altura do meio para o filtro de busca.
+
+A troca da imagem exige um novo deploy, porque a home é gerada no build.

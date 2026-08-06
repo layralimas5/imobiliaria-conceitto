@@ -12,12 +12,7 @@ import {
   type Property,
 } from '@/domain/property';
 import { TYPE_LABELS } from '@/domain/search';
-import {
-  formatArea,
-  formatListingTitle,
-  formatMonthlyCost,
-  formatPrice,
-} from '@/lib/format';
+import { formatArea, formatMonthlyCost, formatPrice } from '@/lib/format';
 import { PropertyGallery } from '@/components/property/property-gallery';
 import { PropertyCard } from '@/components/property/property-card';
 import { ContactCard } from '@/components/property/contact-card';
@@ -70,14 +65,12 @@ export async function generateMetadata(
     .filter(Boolean)
     .join(' · ');
 
-  const title = formatListingTitle(property.title);
-
   return {
-    title: title || `Imóvel ${property.code}`,
+    title: property.title || `Imóvel ${property.code}`,
     description,
     alternates: { canonical },
     openGraph: {
-      title,
+      title: property.title,
       description,
       url: canonical,
       images: property.photos.slice(0, 1).map((photo) => ({ url: photo.url })),
@@ -107,7 +100,6 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
   );
 
   const mapMarker = toMapMarker(summary, operation);
-  const displayTitle = formatListingTitle(property.title);
 
   const specs = [
     { icon: Maximize, label: 'Área construída', value: formatArea(property.areas.built) },
@@ -174,7 +166,7 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
           </ol>
         </nav>
 
-        <PropertyGallery photos={property.photos} title={displayTitle} />
+        <PropertyGallery photos={property.photos} title={property.title} />
 
         <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_22rem] lg:gap-16">
           <div>
@@ -190,7 +182,7 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
                   ? `${property.address.neighborhood}, ${property.address.city}`
                   : property.address.city}
               </h1>
-              <p className="mt-3 text-lg text-ink-soft">{displayTitle}</p>
+              <p className="mt-3 text-lg text-ink-soft">{property.title}</p>
             </header>
 
             {specs.length > 0 ? (
@@ -323,7 +315,7 @@ function buildJsonLd(property: Property, price: number | null) {
   return {
     '@context': 'https://schema.org',
     '@type': 'RealEstateListing',
-    name: formatListingTitle(property.title),
+    name: property.title,
     description: property.description.slice(0, 500),
     url: `${SITE.url}${propertyPath(summary)}`,
     datePosted: property.publishedAt,

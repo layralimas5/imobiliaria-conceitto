@@ -1,0 +1,4 @@
+Pasta reservada para fotos de imóvel servidas pelo próprio site.
+
+Hoje a fotografia dos 1498 imóveis vem do bucket S3 do MSYS, que é a fonte
+de verdade e atualiza sozinha quando a equipe troca a foto no CRM.
