@@ -43,13 +43,10 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
     };
   }, [isOpen, close, step]);
 
-  if (photos.length === 0) {
-    return (
-      <div className="flex aspect-[16/9] items-center justify-center rounded-card bg-surface-muted text-sm text-ink-faint">
-        Sem fotos disponíveis
-      </div>
-    );
-  }
+  // No photography on file: render nothing rather than reserve a screen-high
+  // empty frame. The page then opens on the address and the numbers, which is
+  // the information the visitor came for anyway.
+  if (photos.length === 0) return null;
 
   const [cover, ...rest] = photos;
   const sideThumbs = rest.slice(0, 4);

@@ -1,4 +1,20 @@
-Pasta reservada para fotos de imóvel servidas pelo próprio site.
+Fotos dos imóveis.
 
-Hoje a fotografia dos 1498 imóveis vem do bucket S3 do MSYS, que é a fonte
-de verdade e atualiza sozinha quando a equipe troca a foto no CRM.
+O site não usa mais o bucket S3 do MSYS. A fotografia vem daqui, nomeada
+pelo código do imóvel (o mesmo "Cód. 33858" que aparece na ficha).
+
+Dois formatos funcionam:
+
+  33858.jpg              uma foto só
+  33858/01.jpg           uma galeria; a ordem é a ordem alfabética do
+  33858/02.jpg           nome do arquivo, então numere com zero à esquerda
+  33858/03.jpg
+
+Extensões aceitas: .jpg .jpeg .png .webp .avif
+
+Imóvel sem foto não quebra: o card mostra o bairro sobre um fundo neutro e
+a ficha diz que não há fotos. Onde houver foto, ela é usada em tudo — card,
+galeria, Open Graph e dados estruturados.
+
+Trocar ou adicionar foto exige um novo deploy, porque as páginas são
+geradas no build.

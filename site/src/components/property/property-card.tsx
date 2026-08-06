@@ -45,8 +45,13 @@ export function PropertyCard({
             className="object-cover transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="flex size-full items-center justify-center text-sm text-ink-faint">
-            Sem foto
+          /* Photography is supplied per listing as files; until one lands, the
+             card states where the property is instead of showing a broken frame. */
+          <div className="flex size-full flex-col items-center justify-center gap-1 bg-gradient-to-br from-surface-muted to-bronze-100 px-5 text-center">
+            <p className="text-display text-2xl text-ink/70">{address.neighborhood}</p>
+            <p className="text-[0.6875rem] uppercase tracking-wider text-ink-faint">
+              {subtypeLabel === 'padrao' ? 'Foto sob consulta' : subtypeLabel}
+            </p>
           </div>
         )}
 

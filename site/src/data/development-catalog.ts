@@ -46,7 +46,11 @@ class DevelopmentCatalog implements DevelopmentRepository {
   async featured(limit: number): Promise<readonly Development[]> {
     const developments = await this.load();
     // A card without a cover photo reads as broken on the home page.
-    return developments.filter((development) => development.photos.length > 0).slice(0, limit);
+    // Photographed launches lead, but the block still fills without them: the
+    // card falls back to the development's name over the brand colour.
+    return [...developments]
+      .sort((a, b) => Number(b.photos.length > 0) - Number(a.photos.length > 0))
+      .slice(0, limit);
   }
 }
 

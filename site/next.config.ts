@@ -6,19 +6,8 @@ const nextConfig: NextConfig = {
   // not walk up and pick a lockfile from outside the project.
   turbopack: { root: path.resolve(import.meta.dirname) },
   images: {
-    // Listing photography is served straight from the MSYS S3 bucket.
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 's3.amazonaws.com',
-        pathname: '/msys-imob-imobiliariaconceitto/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'msys-imob-imobiliariaconceitto.s3.amazonaws.com',
-        pathname: '/**',
-      },
-    ],
+    // Photography is served from `public/imagens`, so no remote host is allowed.
+    // The MSYS S3 bucket used to be listed here and no longer renders.
     formats: ['image/avif', 'image/webp'],
   },
   poweredByHeader: false,

@@ -38,7 +38,7 @@ export default async function HomePage() {
             className="object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-brand-900" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-900 via-ink to-brand-900" />
         )}
         <div
           aria-hidden
