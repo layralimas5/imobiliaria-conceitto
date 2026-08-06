@@ -346,6 +346,43 @@ vira o fundo do hero. A Lay já subiu a dela.
    mas um JPEG de origem pouparia tempo de build.
 4. **Logo em branco ou vetor**, para o cabeçalho imersivo voltar.
 
+## Quinta entrega (06/08/2026) — captação de imóvel e acabamento
+
+**Cadastro de imóvel em `/anuncie`.** O proprietário preenche dados dele e do
+imóvel, anexa fotos e envia. É a mudança de maior peso: a página deixou de ser
+um pedido de avaliação de quatro campos.
+
+Importante ser honesto sobre o destino: **isso não escreve no MSYS**. O CRM não
+tem API de escrita, só publica para fora via feed de portais. Então a submissão
+chega à equipe (e-mail com as fotos em anexo e/ou webhook com o manifesto) com
+tudo que é preciso para cadastrar, e uma pessoa cria o registro no MSYS.
+
+As fotos são reduzidas no navegador antes de subir, para 1920px e JPEG. Não é
+refinamento: o corpo de uma requisição serverless trava em ~4,5 MB no host, e
+uma foto de celular tem de 3 a 5 MB. Sem isso, oito fotos nunca chegariam à
+função. Testado: um PNG de 5,54 MB em 3000x2000 vira 0,1 MB.
+
+**Cabeçalho com vidro fosco no scroll**, `blur(40px)` sobre branco a 70%. O
+estado anterior era `bg-paper/95`, ou seja, uma chapa opaca com desfoque
+irrelevante atrás.
+
+**Ícones de telefone e de acesso ao sistema** ao lado do menu. O telefone
+disca a matriz, que é a mesma regra que `branchFor(undefined)` aplica no resto
+do site. O ícone de usuário abre a área do cliente do MSYS, o mesmo destino que
+o site atual já usa.
+
+**Rodapé:** Instagram e Facebook viraram ícones abaixo do CRECI, uma linha por
+unidade, porque as duas lojas têm perfis diferentes e um par único de ícones
+seria mentira. A última linha trocou o CRECI por "Desenvolvido por Layra Lima",
+e a razão social deu lugar ao nome fantasia.
+
+**Sobre "as abas não estão funcionando":** não reproduziu. Testei as sete rotas
+por HTTP e clicando uma a uma no navegador, todas respondem 200 e navegam. O
+que aconteceu é que eu subi e derrubei servidor na porta 3000 várias vezes
+durante a sessão, e em alguns momentos ela ficou com processo morto ou servindo
+build antigo. Para conferir do lado da Lay: `npm run dev` em `site/`, e se der
+"porta em uso" é processo velho pendurado.
+
 ## Próximos passos
 
 1. **Deploy em staging.** É o único item da terceira entrega que não fechou: a
