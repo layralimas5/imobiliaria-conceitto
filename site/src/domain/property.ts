@@ -49,6 +49,27 @@ export interface PropertyAddress {
   /** Approximate coordinates. Exact address is withheld until the lead converts. */
   readonly latitude: number | null;
   readonly longitude: number | null;
+  /**
+   * How far the plotted point can be trusted. `neighborhood` is the norm and
+   * the most the site is willing to state; `city` means the neighbourhood could
+   * not be resolved and the pin sits on the city centre. The UI has to say which.
+   */
+  readonly locationPrecision: LocationPrecision | null;
+}
+
+export type LocationPrecision = 'neighborhood' | 'city';
+
+/** A listing that can actually be drawn: coordinates present and trusted. */
+export interface PlottablePoint {
+  readonly latitude: number;
+  readonly longitude: number;
+  readonly precision: LocationPrecision;
+}
+
+export function pointOf(address: PropertyAddress): PlottablePoint | null {
+  const { latitude, longitude, locationPrecision } = address;
+  if (latitude === null || longitude === null || locationPrecision === null) return null;
+  return { latitude, longitude, precision: locationPrecision };
 }
 
 export interface PropertyAreas {
@@ -171,7 +192,9 @@ export function operationSegment(
  *
  * @example /imovel/venda/casa/bento-goncalves/santo-antao/33845
  */
-export function propertyPath(property: PropertySummary): string {
+export function propertyPath(
+  property: Pick<PropertySummary, 'operations' | 'type' | 'address' | 'code'>,
+): string {
   const { operations, type, address, code } = property;
   const segment = operationSegment(operations);
   return `/imovel/${segment}/${type}/${address.citySlug}/${address.neighborhoodSlug}/${code}`;

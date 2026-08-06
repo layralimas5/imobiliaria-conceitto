@@ -39,6 +39,11 @@ export interface PropertyRepository {
   findSimilar(property: Property, limit: number): Promise<readonly PropertySummary[]>;
   featured(limit: number): Promise<readonly PropertySummary[]>;
   facets(operation: SearchQuery['operation']): Promise<CatalogFacets>;
+  /**
+   * Distinct listings in the catalog. Not the sum of the per-operation facets:
+   * a listing offered for both sale and rent appears in each of them.
+   */
+  count(): Promise<number>;
   /** Every listing, for sitemap and static param generation. */
   allSummaries(): Promise<readonly PropertySummary[]>;
 }

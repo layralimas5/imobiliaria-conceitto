@@ -163,6 +163,10 @@ class CatalogRepository implements PropertyRepository {
     };
   }
 
+  async count(): Promise<number> {
+    return CATALOG.length;
+  }
+
   async allSummaries(): Promise<readonly PropertySummary[]> {
     return CATALOG.map(toSummary);
   }

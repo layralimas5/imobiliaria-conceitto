@@ -1,0 +1,747 @@
+{
+  "alto-feliz|7-colonias": {
+    "latitude": -29.3785943,
+    "longitude": -51.3123751,
+    "precision": "city"
+  },
+  "alto-feliz|morro-alegre": {
+    "latitude": -29.3785943,
+    "longitude": -51.3123751,
+    "precision": "city"
+  },
+  "alto-feliz|sao-pedro-de-alto-feliz": {
+    "latitude": -29.335692,
+    "longitude": -51.301615,
+    "precision": "neighborhood"
+  },
+  "arroio-do-sal|centro": {
+    "latitude": -29.5473732,
+    "longitude": -49.8917618,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|aparecida": {
+    "latitude": -29.1356195,
+    "longitude": -51.5395495,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|barracao": {
+    "latitude": -29.1647088,
+    "longitude": -51.477494,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|borgo": {
+    "latitude": -29.1548664,
+    "longitude": -51.5087584,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|botafogo": {
+    "latitude": -29.1787051,
+    "longitude": -51.5117114,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|caminho-da-eulalia": {
+    "latitude": -29.1656734,
+    "longitude": -51.5201166,
+    "precision": "city"
+  },
+  "bento-goncalves|caminhos-da-eulalia": {
+    "latitude": -29.1426375,
+    "longitude": -51.5504501,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|centro": {
+    "latitude": -29.1664657,
+    "longitude": -51.5162911,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|cidade-alta": {
+    "latitude": -29.1712381,
+    "longitude": -51.5196949,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|cohab": {
+    "latitude": -29.153106,
+    "longitude": -51.5030377,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|conceicao": {
+    "latitude": -29.1680287,
+    "longitude": -51.5356005,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|cruzeiro": {
+    "latitude": -29.1870143,
+    "longitude": -51.4749446,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|eucaliptos": {
+    "latitude": -29.1635986,
+    "longitude": -51.4898386,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|faria-lemos": {
+    "latitude": -29.0859239,
+    "longitude": -51.6147907,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|fatima": {
+    "latitude": -29.1795751,
+    "longitude": -51.4879892,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|fenavinho": {
+    "latitude": -29.1672024,
+    "longitude": -51.4941193,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|humaita": {
+    "latitude": -29.1610498,
+    "longitude": -51.5163748,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|imigrante": {
+    "latitude": -29.1740337,
+    "longitude": -51.5010067,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|jardim-gloria": {
+    "latitude": -29.1761115,
+    "longitude": -51.5271372,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|juventude-da-enologia": {
+    "latitude": -29.1667408,
+    "longitude": -51.5229144,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|licorsul": {
+    "latitude": -29.1598589,
+    "longitude": -51.50034,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|loteamento-san-marino": {
+    "latitude": -29.1656734,
+    "longitude": -51.5201166,
+    "precision": "city"
+  },
+  "bento-goncalves|maria-goretti": {
+    "latitude": -29.1567333,
+    "longitude": -51.5279774,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|ouro-verde": {
+    "latitude": -29.1417932,
+    "longitude": -51.5162662,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|planalto": {
+    "latitude": -29.1673266,
+    "longitude": -51.5028511,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|pomarosa": {
+    "latitude": -29.177516,
+    "longitude": -51.5182207,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|progresso": {
+    "latitude": -29.1564653,
+    "longitude": -51.5180033,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|recanto-paulina": {
+    "latitude": -29.1656734,
+    "longitude": -51.5201166,
+    "precision": "city"
+  },
+  "bento-goncalves|salgado": {
+    "latitude": -29.1348656,
+    "longitude": -51.4881444,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|san-marino": {
+    "latitude": -29.148876,
+    "longitude": -51.5143567,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|san-marino-ii": {
+    "latitude": -29.1656734,
+    "longitude": -51.5201166,
+    "precision": "city"
+  },
+  "bento-goncalves|san-marino-iv": {
+    "latitude": -29.1656734,
+    "longitude": -51.5201166,
+    "precision": "city"
+  },
+  "bento-goncalves|santa-helena": {
+    "latitude": -29.1850465,
+    "longitude": -51.5020879,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|santa-marta": {
+    "latitude": -29.180227,
+    "longitude": -51.4999735,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|santa-rita": {
+    "latitude": -29.1846777,
+    "longitude": -51.5138465,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|santo-antao": {
+    "latitude": -29.1913092,
+    "longitude": -51.5023452,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|sao-bento": {
+    "latitude": -29.1701794,
+    "longitude": -51.5082192,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|sao-francisco": {
+    "latitude": -29.1652107,
+    "longitude": -51.5081949,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|sao-joao": {
+    "latitude": -29.1526659,
+    "longitude": -51.5417768,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|sao-rafael": {
+    "latitude": -29.1656734,
+    "longitude": -51.5201166,
+    "precision": "city"
+  },
+  "bento-goncalves|sao-roque": {
+    "latitude": -29.1378935,
+    "longitude": -51.5314361,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|sao-valentin": {
+    "latitude": -29.1067999,
+    "longitude": -51.536177,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|sao-vendelino": {
+    "latitude": -29.147013,
+    "longitude": -51.5347294,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|universitario": {
+    "latitude": -29.1510221,
+    "longitude": -51.523895,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|vale-dos-vinhedos": {
+    "latitude": -29.1790428,
+    "longitude": -51.5789598,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|verona": {
+    "latitude": -29.1904008,
+    "longitude": -51.5123664,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|vila-nova": {
+    "latitude": -29.160593,
+    "longitude": -51.4935275,
+    "precision": "neighborhood"
+  },
+  "bento-goncalves|vinhedos": {
+    "latitude": -29.1595369,
+    "longitude": -51.5383721,
+    "precision": "neighborhood"
+  },
+  "canoas|igara": {
+    "latitude": -29.8976487,
+    "longitude": -51.1571047,
+    "precision": "neighborhood"
+  },
+  "capao-da-canoa|arroio-teixeira": {
+    "latitude": -29.6450409,
+    "longitude": -49.9513661,
+    "precision": "neighborhood"
+  },
+  "capao-da-canoa|curumim": {
+    "latitude": -29.6218568,
+    "longitude": -49.9711333,
+    "precision": "neighborhood"
+  },
+  "capao-da-canoa|zona-nova": {
+    "latitude": -29.747344,
+    "longitude": -50.0149611,
+    "precision": "neighborhood"
+  },
+  "carlos-barbosa|centro": {
+    "latitude": -29.2966611,
+    "longitude": -51.5011729,
+    "precision": "neighborhood"
+  },
+  "carlos-barbosa|santa-luiza": {
+    "latitude": -29.316332,
+    "longitude": -51.409733,
+    "precision": "neighborhood"
+  },
+  "carlos-barbosa|vila-nova": {
+    "latitude": -29.2913525,
+    "longitude": -51.5087925,
+    "precision": "neighborhood"
+  },
+  "caxias-do-sul|charqueadas": {
+    "latitude": -29.1891302,
+    "longitude": -51.22188,
+    "precision": "neighborhood"
+  },
+  "caxias-do-sul|desvio-rizzo": {
+    "latitude": -29.1933603,
+    "longitude": -51.2357954,
+    "precision": "neighborhood"
+  },
+  "caxias-do-sul|forqueta": {
+    "latitude": -29.2153444,
+    "longitude": -51.2819167,
+    "precision": "neighborhood"
+  },
+  "caxias-do-sul|rio-branco": {
+    "latitude": -29.1775148,
+    "longitude": -51.1939651,
+    "precision": "neighborhood"
+  },
+  "caxias-do-sul|samuara": {
+    "latitude": -29.1935674,
+    "longitude": -51.2576955,
+    "precision": "neighborhood"
+  },
+  "faria-lemos|faria-lemos": {
+    "latitude": -29.1286615,
+    "longitude": -51.6016058,
+    "precision": "neighborhood"
+  },
+  "faria-lemos|km-5": {
+    "latitude": -29.0859239,
+    "longitude": -51.6147907,
+    "precision": "neighborhood"
+  },
+  "faria-lemos|km-5-5": {
+    "latitude": -29.0859239,
+    "longitude": -51.6147907,
+    "precision": "city"
+  },
+  "farroupilha|1-de-maio": {
+    "latitude": -29.2418496,
+    "longitude": -51.3502189,
+    "precision": "neighborhood"
+  },
+  "farroupilha|altos-do-medianeira": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|alvorada": {
+    "latitude": -29.2264615,
+    "longitude": -51.3160087,
+    "precision": "neighborhood"
+  },
+  "farroupilha|alvorada-1": {
+    "latitude": -29.2264615,
+    "longitude": -51.3160087,
+    "precision": "neighborhood"
+  },
+  "farroupilha|america": {
+    "latitude": -29.2349195,
+    "longitude": -51.3267303,
+    "precision": "neighborhood"
+  },
+  "farroupilha|area-rural-de-farroupilha": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|bairro-do-parque": {
+    "latitude": -29.2260579,
+    "longitude": -51.3371774,
+    "precision": "neighborhood"
+  },
+  "farroupilha|bela-vista": {
+    "latitude": -29.2119961,
+    "longitude": -51.3585876,
+    "precision": "neighborhood"
+  },
+  "farroupilha|belvedere": {
+    "latitude": -29.2050888,
+    "longitude": -51.358517,
+    "precision": "neighborhood"
+  },
+  "farroupilha|caravaggio": {
+    "latitude": -29.1740739,
+    "longitude": -51.3457158,
+    "precision": "neighborhood"
+  },
+  "farroupilha|centenario": {
+    "latitude": -29.2130437,
+    "longitude": -51.3222037,
+    "precision": "neighborhood"
+  },
+  "farroupilha|centro": {
+    "latitude": -29.2272123,
+    "longitude": -51.3469625,
+    "precision": "neighborhood"
+  },
+  "farroupilha|cinquentenario": {
+    "latitude": -29.205077,
+    "longitude": -51.3491572,
+    "precision": "neighborhood"
+  },
+  "farroupilha|cruzeiro": {
+    "latitude": -29.2124879,
+    "longitude": -51.341153,
+    "precision": "neighborhood"
+  },
+  "farroupilha|desvio-blauth": {
+    "latitude": -29.2475858,
+    "longitude": -51.4409119,
+    "precision": "neighborhood"
+  },
+  "farroupilha|do-parque": {
+    "latitude": -30.0370315,
+    "longitude": -51.2155872,
+    "precision": "neighborhood"
+  },
+  "farroupilha|farrapos": {
+    "latitude": -29.2051318,
+    "longitude": -51.3660811,
+    "precision": "neighborhood"
+  },
+  "farroupilha|imigrante": {
+    "latitude": -29.2334749,
+    "longitude": -51.3535016,
+    "precision": "neighborhood"
+  },
+  "farroupilha|industrial": {
+    "latitude": -29.225296,
+    "longitude": -51.3252779,
+    "precision": "neighborhood"
+  },
+  "farroupilha|ipanema": {
+    "latitude": -29.2114543,
+    "longitude": -51.3152368,
+    "precision": "neighborhood"
+  },
+  "farroupilha|jansen": {
+    "latitude": -29.105823,
+    "longitude": -51.3843542,
+    "precision": "neighborhood"
+  },
+  "farroupilha|linha-amadeu": {
+    "latitude": -29.1548329,
+    "longitude": -51.3827658,
+    "precision": "neighborhood"
+  },
+  "farroupilha|linha-boemios": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|linha-cacador": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|linha-jacinto": {
+    "latitude": -29.0975302,
+    "longitude": -51.3876486,
+    "precision": "neighborhood"
+  },
+  "farroupilha|linha-julieta": {
+    "latitude": -29.2029309,
+    "longitude": -51.315431,
+    "precision": "neighborhood"
+  },
+  "farroupilha|linha-paesi": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|linha-palmeiro": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|linha-rio-burati": {
+    "latitude": -29.2038273,
+    "longitude": -51.4412143,
+    "precision": "neighborhood"
+  },
+  "farroupilha|linha-sao-miguel": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|linha-vicentina": {
+    "latitude": -29.2151582,
+    "longitude": -51.3771409,
+    "precision": "neighborhood"
+  },
+  "farroupilha|loteamento-felicita": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|loteamento-industrial-vicentino": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|loteamento-milanes": {
+    "latitude": -29.22647,
+    "longitude": -51.3468188,
+    "precision": "city"
+  },
+  "farroupilha|medianeira": {
+    "latitude": -29.2181152,
+    "longitude": -51.3322325,
+    "precision": "neighborhood"
+  },
+  "farroupilha|monte-pasqual": {
+    "latitude": -29.2207565,
+    "longitude": -51.3163151,
+    "precision": "neighborhood"
+  },
+  "farroupilha|monte-verde": {
+    "latitude": -29.2484386,
+    "longitude": -51.3530088,
+    "precision": "neighborhood"
+  },
+  "farroupilha|nova-milano": {
+    "latitude": -29.2860864,
+    "longitude": -51.3268206,
+    "precision": "neighborhood"
+  },
+  "farroupilha|nova-sardenha": {
+    "latitude": -29.2448459,
+    "longitude": -51.4385356,
+    "precision": "neighborhood"
+  },
+  "farroupilha|nova-vicenza": {
+    "latitude": -29.2134809,
+    "longitude": -51.3473286,
+    "precision": "neighborhood"
+  },
+  "farroupilha|parque": {
+    "latitude": -29.2260579,
+    "longitude": -51.3371774,
+    "precision": "neighborhood"
+  },
+  "farroupilha|pio-x": {
+    "latitude": -29.2316992,
+    "longitude": -51.3354906,
+    "precision": "neighborhood"
+  },
+  "farroupilha|planalto": {
+    "latitude": -29.2218077,
+    "longitude": -51.3437522,
+    "precision": "neighborhood"
+  },
+  "farroupilha|primeiro-de-maio": {
+    "latitude": -29.2418496,
+    "longitude": -51.3502189,
+    "precision": "neighborhood"
+  },
+  "farroupilha|santa-catarina": {
+    "latitude": -29.2129585,
+    "longitude": -51.3355482,
+    "precision": "neighborhood"
+  },
+  "farroupilha|santa-rita": {
+    "latitude": -29.2044446,
+    "longitude": -51.3389485,
+    "precision": "neighborhood"
+  },
+  "farroupilha|santo-antonio": {
+    "latitude": -29.2393909,
+    "longitude": -51.340775,
+    "precision": "neighborhood"
+  },
+  "farroupilha|sao-francisco": {
+    "latitude": -29.2273664,
+    "longitude": -51.3637836,
+    "precision": "neighborhood"
+  },
+  "farroupilha|sao-jose": {
+    "latitude": -29.2337984,
+    "longitude": -51.362891,
+    "precision": "neighborhood"
+  },
+  "farroupilha|sao-luiz": {
+    "latitude": -29.2334484,
+    "longitude": -51.3909982,
+    "precision": "neighborhood"
+  },
+  "farroupilha|sao-marcos": {
+    "latitude": -29.1744416,
+    "longitude": -51.383741,
+    "precision": "neighborhood"
+  },
+  "farroupilha|sao-roque": {
+    "latitude": -29.2187379,
+    "longitude": -51.3402225,
+    "precision": "neighborhood"
+  },
+  "farroupilha|vicentina": {
+    "latitude": -29.2182187,
+    "longitude": -51.3535359,
+    "precision": "neighborhood"
+  },
+  "farroupilha|volta-grande": {
+    "latitude": -29.2358122,
+    "longitude": -51.337474,
+    "precision": "neighborhood"
+  },
+  "flores-da-cunha|centro": {
+    "latitude": -29.0305599,
+    "longitude": -51.1819744,
+    "precision": "neighborhood"
+  },
+  "garibaldi|alfandega": {
+    "latitude": -29.2679965,
+    "longitude": -51.5290285,
+    "precision": "neighborhood"
+  },
+  "garibaldi|bairro-tamandare": {
+    "latitude": -29.2562253,
+    "longitude": -51.5269167,
+    "precision": "city"
+  },
+  "garibaldi|borghetto": {
+    "latitude": -29.2291685,
+    "longitude": -51.5239121,
+    "precision": "neighborhood"
+  },
+  "garibaldi|centro": {
+    "latitude": -29.25653,
+    "longitude": -51.5298686,
+    "precision": "neighborhood"
+  },
+  "garibaldi|garibaldina": {
+    "latitude": -29.2039302,
+    "longitude": -51.531072,
+    "precision": "neighborhood"
+  },
+  "garibaldi|juventude": {
+    "latitude": -29.2512795,
+    "longitude": -51.540521,
+    "precision": "neighborhood"
+  },
+  "garibaldi|santa-terezinha": {
+    "latitude": -29.2402412,
+    "longitude": -51.5328857,
+    "precision": "neighborhood"
+  },
+  "garibaldi|tamandare": {
+    "latitude": -29.2065285,
+    "longitude": -51.5047528,
+    "precision": "neighborhood"
+  },
+  "garibaldi|vinhedos": {
+    "latitude": -29.2068539,
+    "longitude": -51.5109352,
+    "precision": "neighborhood"
+  },
+  "general-camara|centro": {
+    "latitude": -29.9105975,
+    "longitude": -51.7649409,
+    "precision": "neighborhood"
+  },
+  "monte-belo-do-sul|centro": {
+    "latitude": -29.1636205,
+    "longitude": -51.6347449,
+    "precision": "city"
+  },
+  "monte-belo-do-sul|monte-belo": {
+    "latitude": -29.1391863,
+    "longitude": -51.6548289,
+    "precision": "neighborhood"
+  },
+  "passo-de-torres|balneario-bella-torres": {
+    "latitude": -29.3312495,
+    "longitude": -49.7246169,
+    "precision": "city"
+  },
+  "passo-de-torres|bela-torres": {
+    "latitude": -29.3312495,
+    "longitude": -49.7246169,
+    "precision": "city"
+  },
+  "pinto-bandeira|centro": {
+    "latitude": -31.7559114,
+    "longitude": -52.3298234,
+    "precision": "neighborhood"
+  },
+  "pinto-bandeira|linha-jansen": {
+    "latitude": -29.0977191,
+    "longitude": -51.4498258,
+    "precision": "city"
+  },
+  "pinto-bandeira|linha-palmeiro": {
+    "latitude": -29.0977191,
+    "longitude": -51.4498258,
+    "precision": "city"
+  },
+  "porto-alegre|belem-velho": {
+    "latitude": -30.1155228,
+    "longitude": -51.1793764,
+    "precision": "neighborhood"
+  },
+  "porto-alegre|cidade-baixa": {
+    "latitude": -30.0402405,
+    "longitude": -51.2218676,
+    "precision": "neighborhood"
+  },
+  "santa-tereza|centro": {
+    "latitude": -30.0668377,
+    "longitude": -51.2211868,
+    "precision": "neighborhood"
+  },
+  "santa-tereza|vale-dos-vinhedos": {
+    "latitude": -29.1697808,
+    "longitude": -51.7363155,
+    "precision": "city"
+  },
+  "sao-vendelino|centro": {
+    "latitude": -29.3684935,
+    "longitude": -51.3790426,
+    "precision": "city"
+  },
+  "sao-vendelino|piedade": {
+    "latitude": -29.3988547,
+    "longitude": -51.36523,
+    "precision": "neighborhood"
+  },
+  "torres|balneario-torres-sul": {
+    "latitude": -29.3373663,
+    "longitude": -49.7299648,
+    "precision": "city"
+  },
+  "torres|centro": {
+    "latitude": -29.3388683,
+    "longitude": -49.7273625,
+    "precision": "neighborhood"
+  },
+  "tuiuti|trav-sao-pedro": {
+    "latitude": -29.0722911,
+    "longitude": -51.5609248,
+    "precision": "city"
+  },
+  "vale-dos-vinhedos|vale-dos-vinhedos": {
+    "latitude": -29.1960904,
+    "longitude": -51.5473878,
+    "precision": "neighborhood"
+  },
+  "xangri-la|centro": {
+    "latitude": -29.7682584,
+    "longitude": -50.041536,
+    "precision": "neighborhood"
+  }
+}

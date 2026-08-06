@@ -205,6 +205,8 @@ function mapRecord({ property, agents, characteristicNames }) {
       zipCode: null,
       latitude: null,
       longitude: null,
+      // Filled by scripts/geocode-catalog.mjs — run it after every sync.
+      locationPrecision: null,
     },
     areas: {
       built: isLand ? null : (builtArea ?? totalArea),
