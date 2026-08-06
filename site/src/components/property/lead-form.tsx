@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { cloneElement, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Check, Loader2 } from 'lucide-react';
 import { LEAD_INTENTS, LEAD_INTENT_LABELS, leadSchema } from '@/domain/lead';
 
@@ -23,12 +23,20 @@ export function LeadForm({
   const [status, setStatus] = useState<Status>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
+  const confirmationRef = useRef<HTMLDivElement>(null);
+
+  // The form is replaced by the confirmation, so keyboard focus would otherwise
+  // fall back to the top of the document with no announcement of what happened.
+  useEffect(() => {
+    if (status === 'success') confirmationRef.current?.focus();
+  }, [status]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError(null);
 
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const candidate = {
       name: String(form.get('name') ?? ''),
       email: String(form.get('email') ?? ''),
@@ -49,6 +57,11 @@ export function LeadForm({
       }
       setErrors(fieldErrors);
       setStatus('error');
+      // Land the user on the first thing they have to fix, not at the top.
+      const firstField = Object.keys(fieldErrors)[0];
+      if (firstField) {
+        formElement.querySelector<HTMLElement>(`[name="${firstField}"]`)?.focus();
+      }
       return;
     }
 
@@ -72,7 +85,9 @@ export function LeadForm({
   if (status === 'success') {
     return (
       <div
+        ref={confirmationRef}
         role="status"
+        tabIndex={-1}
         className={`rounded-lg border border-forest-100 bg-forest-50 p-5 text-center ${className}`}
       >
         <Check className="mx-auto size-6 text-forest-600" aria-hidden />
@@ -184,6 +199,10 @@ function inputClass(error: string | undefined): string {
   }`;
 }
 
+/**
+ * Wires the error message to the control it belongs to, so a screen reader
+ * announces *what* is wrong on the field it lands on, not just that something is.
+ */
 function Field({
   id,
   label,
@@ -193,16 +212,20 @@ function Field({
   id: string;
   label: string;
   error: string | undefined;
-  children: React.ReactNode;
+  children: React.ReactElement<{ 'aria-invalid'?: boolean; 'aria-describedby'?: string }>;
 }) {
+  const errorId = `${id}-error`;
   return (
     <div>
       <label htmlFor={id} className="mb-1.5 block text-xs font-medium text-ink-soft">
         {label}
       </label>
-      {children}
+      {cloneElement(children, {
+        'aria-invalid': error ? true : undefined,
+        'aria-describedby': error ? errorId : undefined,
+      })}
       {error ? (
-        <p className="mt-1 text-xs text-red-700" role="alert">
+        <p id={errorId} className="mt-1 text-xs text-red-700">
           {error}
         </p>
       ) : null}

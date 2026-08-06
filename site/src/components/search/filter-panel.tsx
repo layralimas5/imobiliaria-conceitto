@@ -12,6 +12,7 @@ import {
 } from '@/domain/search';
 import type { CatalogFacets } from '@/data/property-repository';
 import { formatPriceCompact } from '@/lib/format';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 
 interface FilterPanelProps {
   facets: CatalogFacets;
@@ -27,6 +28,7 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
   const [draft, setDraft] = useState<SearchQuery>(query);
   const [appliedQuery, setAppliedQuery] = useState<SearchQuery>(query);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const sheetRef = useModalFocus<HTMLDivElement>(isSheetOpen);
 
   // Navigation replaced the query: drop the in-progress draft and start from
   // what the URL now says. Adjusting during render avoids a wasted pass.
@@ -256,7 +258,16 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
 
       {/* Mobile sheet */}
       {isSheetOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Filtros">
+        <div
+          ref={sheetRef}
+          className="fixed inset-0 z-50 lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Filtros"
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') setIsSheetOpen(false);
+          }}
+        >
           <button
             type="button"
             aria-label="Fechar filtros"
@@ -272,7 +283,7 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
                 aria-label="Fechar"
                 className="inline-flex size-9 items-center justify-center rounded-full hover:bg-surface-muted"
               >
-                <X className="size-5" />
+                <X className="size-5" aria-hidden />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto px-5 py-6">{body}</div>

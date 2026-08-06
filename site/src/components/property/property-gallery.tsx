@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ChevronLeft, ChevronRight, Expand, X } from 'lucide-react';
 import type { PropertyMedia } from '@/domain/property';
+import { useModalFocus } from '@/hooks/use-modal-focus';
 
 interface PropertyGalleryProps {
   photos: readonly PropertyMedia[];
@@ -13,6 +14,7 @@ interface PropertyGalleryProps {
 export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const isOpen = lightboxIndex !== null;
+  const lightboxRef = useModalFocus<HTMLDivElement>(isOpen);
 
   const close = useCallback(() => setLightboxIndex(null), []);
 
@@ -110,6 +112,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
 
       {isOpen ? (
         <div
+          ref={lightboxRef}
           className="fixed inset-0 z-50 flex flex-col bg-ink/95"
           role="dialog"
           aria-modal="true"
@@ -125,7 +128,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
               aria-label="Fechar galeria"
               className="inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
             >
-              <X className="size-5" />
+              <X className="size-5" aria-hidden />
             </button>
           </div>
 
@@ -148,7 +151,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
                 aria-label="Foto anterior"
                 className="absolute left-3 top-1/2 inline-flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
               >
-                <ChevronLeft className="size-6" />
+                <ChevronLeft className="size-6" aria-hidden />
               </button>
               <button
                 type="button"
@@ -156,7 +159,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
                 aria-label="Próxima foto"
                 className="absolute right-3 top-1/2 inline-flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
               >
-                <ChevronRight className="size-6" />
+                <ChevronRight className="size-6" aria-hidden />
               </button>
             </>
           ) : null}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, Phone, X } from 'lucide-react';
@@ -10,6 +10,7 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   // Pages that open with a full-bleed hero let the header sit over the image.
   const hasImmersiveHero = pathname === '/' || /^\/lancamentos\/[^/]+$/.test(pathname);
@@ -27,6 +28,19 @@ export function SiteHeader() {
     return () => {
       document.body.style.overflow = '';
     };
+  }, [isOpen]);
+
+  // Escape closes the menu, and focus goes back to the button that opened it —
+  // the panel covers the page, so leaving focus behind it strands the keyboard.
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setIsOpen(false);
+      toggleRef.current?.focus();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [isOpen]);
 
   return (
@@ -91,6 +105,7 @@ export function SiteHeader() {
           </a>
 
           <button
+            ref={toggleRef}
             type="button"
             onClick={() => setIsOpen((open) => !open)}
             aria-expanded={isOpen}
@@ -98,7 +113,11 @@ export function SiteHeader() {
             aria-label={isOpen ? 'Fechar menu' : 'Abrir menu'}
             className="inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-black/5 lg:hidden"
           >
-            {isOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {isOpen ? (
+              <X className="size-5" aria-hidden />
+            ) : (
+              <Menu className="size-5" aria-hidden />
+            )}
           </button>
         </div>
       </div>
@@ -115,7 +134,8 @@ export function SiteHeader() {
                   <Link
                     href={link.href}
                     onClick={() => setIsOpen(false)}
-                    className="block rounded-lg px-3 py-3 text-lg transition-colors hover:bg-surface-muted"
+                    aria-current={pathname === link.href ? 'page' : undefined}
+                    className="block rounded-lg px-3 py-3 text-lg transition-colors hover:bg-surface-muted aria-[current=page]:font-medium aria-[current=page]:text-forest-700"
                   >
                     {link.label}
                   </Link>
