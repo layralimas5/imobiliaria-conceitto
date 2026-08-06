@@ -38,6 +38,45 @@ export function formatMonthlyCost(condoFee: number | null, propertyTax: number |
   return total > 0 ? currency.format(total) : null;
 }
 
+/** Words that stay lowercase inside a title, unless they open it. */
+const MINOR_WORDS = new Set([
+  'a', 'à', 'ao', 'aos', 'as', 'às', 'da', 'das', 'de', 'do', 'dos', 'e', 'em', 'na',
+  'nas', 'no', 'nos', 'o', 'os', 'ou', 'para', 'pela', 'pelo', 'por', 'com', 'sem', 'um',
+  'uma',
+]);
+
+/** Kept as-is because lowering them would read as a typo, not as a fix. */
+const ACRONYMS = new Set(['RS', 'SC', 'PR', 'SP', 'CRECI', 'CEP', 'IPTU', 'BR']);
+
+/**
+ * MSYS titles are typed in caps lock by the team ("LINDO APARTAMENTO NO BOTAFOGO").
+ * Published verbatim across 1498 listings that reads as shouting, so a title that
+ * is predominantly uppercase is brought down to title case.
+ *
+ * A title that is already mixed case is returned untouched — the point is to stop
+ * the shouting, not to impose a house style on text somebody wrote carefully.
+ */
+export function formatListingTitle(title: string): string {
+  const letters = title.replace(/[^\p{L}]/gu, '');
+  if (letters.length === 0) return title;
+
+  const uppercaseRatio =
+    [...letters].filter((char) => char === char.toUpperCase()).length / letters.length;
+  if (uppercaseRatio < 0.8) return title;
+
+  return title
+    .toLocaleLowerCase('pt-BR')
+    .split(/(\s+|-|\/)/)
+    .map((token, index) => {
+      if (/^(\s+|-|\/)$/.test(token) || token.length === 0) return token;
+      const upper = token.toLocaleUpperCase('pt-BR');
+      if (ACRONYMS.has(upper)) return upper;
+      if (index > 0 && MINOR_WORDS.has(token)) return token;
+      return token.charAt(0).toLocaleUpperCase('pt-BR') + token.slice(1);
+    })
+    .join('');
+}
+
 export function slugify(value: string): string {
   return value
     .normalize('NFD')

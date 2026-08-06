@@ -10,10 +10,10 @@ import { SearchBar } from '@/components/search/search-bar';
 import { BRANCHES, SITE } from '@/lib/site-config';
 
 export default async function HomePage() {
-  const [featured, saleFacets, rentFacets, developments] = await Promise.all([
+  const [featured, saleFacets, catalogSize, developments] = await Promise.all([
     propertyRepository.featured(6),
     propertyRepository.facets('venda'),
-    propertyRepository.facets('locacao'),
+    propertyRepository.count(),
     developmentRepository.featured(3),
   ]);
 
@@ -52,8 +52,8 @@ export default async function HomePage() {
               na serra certa.
             </h1>
             <p className="mt-6 max-w-lg text-base leading-relaxed text-white/80">
-              {saleFacets.total + rentFacets.total} imóveis em Farroupilha, Bento Gonçalves
-              e região, com corretor de verdade do outro lado.
+              {catalogSize} imóveis em Farroupilha, Bento Gonçalves e região, com
+              corretor de verdade do outro lado.
             </p>
           </div>
 

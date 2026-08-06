@@ -9,7 +9,7 @@ import {
   type PropertySummary,
 } from '@/domain/property';
 import { TYPE_LABELS } from '@/domain/search';
-import { formatArea, formatPrice } from '@/lib/format';
+import { formatArea, formatListingTitle, formatPrice } from '@/lib/format';
 
 interface PropertyCardProps {
   property: PropertySummary;
@@ -86,7 +86,7 @@ export function PropertyCard({
           </Link>
         </h3>
 
-        <p className="mt-1 line-clamp-1 text-sm text-ink-soft">{property.title}</p>
+        <p className="mt-1 line-clamp-1 text-sm text-ink-soft">{formatListingTitle(property.title)}</p>
 
         {(rooms.bedrooms ?? rooms.bathrooms ?? rooms.parkingSpaces ?? area) !== null ? (
           <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-soft">
