@@ -15,7 +15,12 @@ import { ResultsView } from '@/components/search/results-view';
 import { toMapMarkers } from '@/components/map/map-marker';
 
 interface SearchResultsProps {
-  operation: Operation;
+  /**
+   * Pins the catalog to one operation, the way `/comprar` and `/alugar` do.
+   * Leave it out and the operation comes from the URL instead, which is what
+   * turns `/imoveis` into a single page with a buy/rent filter.
+   */
+  operation?: Operation;
   basePath: string;
   searchParams: Record<string, string | string[] | undefined>;
   heading: string;
@@ -29,19 +34,22 @@ export async function SearchResults({
   heading,
   subheading,
 }: SearchResultsProps) {
-  const query: SearchQuery = { ...parseSearchQuery(searchParams), operation };
+  const parsed = parseSearchQuery(searchParams);
+  const operationInUrl = operation === undefined;
+  const activeOperation = operation ?? parsed.operation;
+  const query: SearchQuery = { ...parsed, operation: activeOperation };
   const [results, facets] = await Promise.all([
     propertyRepository.search(query),
-    propertyRepository.facets(operation),
+    propertyRepository.facets(activeOperation),
   ]);
 
   const activeCount = countActiveFilters(query);
-  const markers = toMapMarkers(results.items, operation);
+  const markers = toMapMarkers(results.items, activeOperation);
 
   return (
     <div className="container-page py-10 md:py-14">
       <header className="mb-8 max-w-3xl">
-        <p className="text-eyebrow">{OPERATION_LABELS[operation]}</p>
+        <p className="text-eyebrow">{OPERATION_LABELS[activeOperation]}</p>
         <h1 className="text-display mt-3 text-4xl md:text-5xl">{heading}</h1>
         {subheading ? (
           <p className="mt-4 text-base leading-relaxed text-ink-soft">{subheading}</p>
@@ -54,6 +62,7 @@ export async function SearchResults({
           query={query}
           basePath={basePath}
           resultCount={results.total}
+          operationInUrl={operationInUrl}
         />
 
         {/* min-w-0: a grid item defaults to min-width:auto, and the map would
@@ -70,11 +79,20 @@ export async function SearchResults({
                 </span>
               ) : null}
             </p>
-            <SortSelect query={query} basePath={basePath} />
+            <SortSelect
+              query={query}
+              basePath={basePath}
+              operationInUrl={operationInUrl}
+            />
           </div>
 
           {results.items.length === 0 ? (
-            <EmptyState basePath={basePath} hasFilters={activeCount > 0} />
+            <EmptyState
+              clearHref={
+                operationInUrl ? `${basePath}?operacao=${activeOperation}` : basePath
+              }
+              hasFilters={activeCount > 0}
+            />
           ) : (
             <>
               <ResultsView
@@ -86,7 +104,7 @@ export async function SearchResults({
                       <li key={property.code} className="flex">
                         <PropertyCard
                           property={property}
-                          operation={operation}
+                          operation={activeOperation}
                           priority={index < 3}
                           className="w-full"
                         />
@@ -100,6 +118,7 @@ export async function SearchResults({
                 basePath={basePath}
                 page={results.page}
                 totalPages={results.totalPages}
+                operationInUrl={operationInUrl}
               />
             </>
           )}
@@ -109,7 +128,13 @@ export async function SearchResults({
   );
 }
 
-function EmptyState({ basePath, hasFilters }: { basePath: string; hasFilters: boolean }) {
+function EmptyState({
+  clearHref,
+  hasFilters,
+}: {
+  clearHref: string;
+  hasFilters: boolean;
+}) {
   return (
     <div className="rounded-card border border-dashed border-line-strong bg-surface p-12 text-center">
       <h2 className="text-display text-2xl">Nenhum imóvel com esses filtros</h2>
@@ -121,7 +146,7 @@ function EmptyState({ basePath, hasFilters }: { basePath: string; hasFilters: bo
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         {hasFilters ? (
           <Link
-            href={basePath}
+            href={clearHref}
             className="rounded-full bg-brand-700 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
           >
             Limpar filtros

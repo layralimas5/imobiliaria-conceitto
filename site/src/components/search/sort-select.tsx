@@ -12,13 +12,18 @@ import {
 interface SortSelectProps {
   query: SearchQuery;
   basePath: string;
+  /** See `buildSearchParams`: `/imoveis` keeps the operation in the URL. */
+  operationInUrl?: boolean;
 }
 
-export function SortSelect({ query, basePath }: SortSelectProps) {
+export function SortSelect({ query, basePath, operationInUrl = false }: SortSelectProps) {
   const router = useRouter();
 
   function handleChange(sort: SortOption) {
-    const params = buildSearchParams({ ...query, sort, page: 1 });
+    const params = buildSearchParams(
+      { ...query, sort, page: 1 },
+      { includeOperation: operationInUrl },
+    );
     const queryString = params.toString();
     router.push(queryString ? `${basePath}?${queryString}` : basePath, { scroll: false });
   }

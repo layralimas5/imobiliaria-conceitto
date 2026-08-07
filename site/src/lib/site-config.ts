@@ -122,8 +122,7 @@ export function developmentWhatsapp(development: Development): string {
 }
 
 export const NAV_LINKS = [
-  { href: '/comprar', label: 'Comprar' },
-  { href: '/alugar', label: 'Alugar' },
+  { href: '/imoveis', label: 'Nossos Imóveis' },
   { href: '/lancamentos', label: 'Lançamentos' },
   { href: '/anuncie', label: 'Anuncie seu imóvel' },
   { href: '/sobre', label: 'A Conceitto' },

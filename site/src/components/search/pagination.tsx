@@ -7,14 +7,25 @@ interface PaginationProps {
   basePath: string;
   page: number;
   totalPages: number;
+  /** See `buildSearchParams`: `/imoveis` keeps the operation in the URL. */
+  operationInUrl?: boolean;
 }
 
 /** Server-rendered so pagination works without JS and stays crawlable. */
-export function Pagination({ query, basePath, page, totalPages }: PaginationProps) {
+export function Pagination({
+  query,
+  basePath,
+  page,
+  totalPages,
+  operationInUrl = false,
+}: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const hrefFor = (target: number) => {
-    const params = buildSearchParams({ ...query, page: target });
+    const params = buildSearchParams(
+      { ...query, page: target },
+      { includeOperation: operationInUrl },
+    );
     const queryString = params.toString();
     return queryString ? `${basePath}?${queryString}` : basePath;
   };

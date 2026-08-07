@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { SlidersHorizontal, X } from 'lucide-react';
-import type { PropertyType } from '@/domain/property';
+import { OPERATIONS, type Operation, type PropertyType } from '@/domain/property';
 import {
+  OPERATION_LABELS,
   TYPE_LABELS_PLURAL,
   buildSearchParams,
   countActiveFilters,
@@ -19,11 +20,23 @@ interface FilterPanelProps {
   query: SearchQuery;
   basePath: string;
   resultCount: number;
+  /**
+   * On `/imoveis` the operation is a filter like any other, so the panel gets a
+   * buy/rent switch and every URL it writes carries the choice. On `/comprar`
+   * and `/alugar` the route already decided, and the switch stays hidden.
+   */
+  operationInUrl?: boolean;
 }
 
 const ROOM_OPTIONS = [1, 2, 3, 4] as const;
 
-export function FilterPanel({ facets, query, basePath, resultCount }: FilterPanelProps) {
+export function FilterPanel({
+  facets,
+  query,
+  basePath,
+  resultCount,
+  operationInUrl = false,
+}: FilterPanelProps) {
   const router = useRouter();
   const [draft, setDraft] = useState<SearchQuery>(query);
   const [appliedQuery, setAppliedQuery] = useState<SearchQuery>(query);
@@ -54,15 +67,39 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
   }, [draft.city, facets.neighborhoods]);
 
   function apply(next: SearchQuery) {
-    const params = buildSearchParams({ ...next, page: 1 });
+    const params = buildSearchParams({ ...next, page: 1 }, { includeOperation: operationInUrl });
     const queryString = params.toString();
     router.push(queryString ? `${basePath}?${queryString}` : basePath, { scroll: true });
     setIsSheetOpen(false);
   }
 
   function clearAll() {
-    router.push(basePath);
+    // The operation is not one of the filters being cleared — it decides which
+    // catalog the visitor is looking at, so it survives "limpar".
+    const params = operationInUrl
+      ? `?${new URLSearchParams({ operacao: query.operation }).toString()}`
+      : '';
+    router.push(`${basePath}${params}`);
     setIsSheetOpen(false);
+  }
+
+  /*
+   * Switching buy/rent swaps the whole catalog underneath: the facet counts,
+   * the neighborhoods on offer and — above all — the price scale. Carrying a
+   * 300k floor into a rental search would silently return nothing, so those
+   * three reset and the navigation happens at once instead of waiting for
+   * "aplicar", since the panel's own options are stale until the server answers.
+   */
+  function switchOperation(operation: Operation) {
+    if (operation === query.operation) return;
+    apply({
+      ...draft,
+      operation,
+      neighborhoods: [],
+      types: [],
+      minPrice: undefined,
+      maxPrice: undefined,
+    });
   }
 
   function toggle<T>(list: readonly T[], value: T): T[] {
@@ -73,6 +110,31 @@ export function FilterPanel({ facets, query, basePath, resultCount }: FilterPane
 
   const body = (
     <div className="space-y-7">
+      {operationInUrl ? (
+        <Field label="Operação">
+          <div role="group" aria-label="Comprar ou alugar" className="grid grid-cols-2 gap-2">
+            {OPERATIONS.map((operation) => {
+              const isOn = query.operation === operation;
+              return (
+                <button
+                  key={operation}
+                  type="button"
+                  onClick={() => switchOperation(operation)}
+                  aria-pressed={isOn}
+                  className={`h-11 rounded-lg border text-sm font-medium transition-colors ${
+                    isOn
+                      ? 'border-brand-700 bg-brand-700 text-white'
+                      : 'border-line bg-surface text-ink-soft hover:border-line-strong hover:text-ink'
+                  }`}
+                >
+                  {OPERATION_LABELS[operation]}
+                </button>
+              );
+            })}
+          </div>
+        </Field>
+      ) : null}
+
       <Field label="Cidade">
         <select
           value={draft.city ?? ''}

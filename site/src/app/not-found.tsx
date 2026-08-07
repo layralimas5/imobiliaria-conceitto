@@ -11,13 +11,13 @@ export default function NotFound() {
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link
-          href="/comprar"
+          href="/imoveis?operacao=venda"
           className="rounded-full bg-brand-700 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-600"
         >
           Imóveis à venda
         </Link>
         <Link
-          href="/alugar"
+          href="/imoveis?operacao=locacao"
           className="rounded-full border border-line px-6 py-3 text-sm font-medium transition-colors hover:border-line-strong"
         >
           Imóveis para alugar

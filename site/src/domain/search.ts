@@ -81,7 +81,9 @@ export function parseSearchQuery(
     Array.isArray(value) ? value[0] : value;
 
   const result = searchQuerySchema.safeParse({
-    operation: single(params.operation),
+    // `operacao` is what the unified /imoveis page writes; `operation` stays
+    // accepted so older links keep resolving.
+    operation: single(params.operacao) ?? single(params.operation),
     city: single(params.city),
     neighborhoods: list(params.bairros),
     types: list(params.tipos),
@@ -102,9 +104,21 @@ export function parseSearchQuery(
   return result.success ? result.data : searchQuerySchema.parse({});
 }
 
-/** Rebuilds the querystring, omitting defaults so URLs stay clean. */
-export function buildSearchParams(query: SearchQuery): URLSearchParams {
+/**
+ * Rebuilds the querystring, omitting defaults so URLs stay clean.
+ *
+ * `includeOperation` is for pages that carry the operation in the URL instead
+ * of in the route. `/comprar` and `/alugar` pin it to the path, so writing it
+ * again would only add noise; `/imoveis` needs it to survive sorting, paging
+ * and every filter change.
+ */
+export function buildSearchParams(
+  query: SearchQuery,
+  options: { includeOperation?: boolean } = {},
+): URLSearchParams {
   const params = new URLSearchParams();
+
+  if (options.includeOperation) params.set('operacao', query.operation);
   const setList = (key: string, values: readonly string[]): void => {
     if (values.length > 0) params.set(key, values.join(','));
   };
