@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Instrument_Serif } from 'next/font/google';
-import { SiteHeader } from '@/components/layout/site-header';
-import { SiteFooter } from '@/components/layout/site-footer';
-import { WhatsappFab } from '@/components/layout/whatsapp-fab';
+import { SiteChrome } from '@/components/layout/site-chrome';
 import { SITE } from '@/lib/site-config';
 import './globals.css';
 
@@ -48,12 +46,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         >
           Pular para o conteúdo
         </a>
-        <SiteHeader />
-        <main id="conteudo" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
-        <WhatsappFab />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );

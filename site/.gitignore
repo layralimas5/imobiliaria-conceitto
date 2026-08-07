@@ -41,3 +41,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Demo panel records (see src/lib/system-store.ts)
+/dados-sistema.json
