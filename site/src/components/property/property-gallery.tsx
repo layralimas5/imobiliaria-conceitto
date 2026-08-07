@@ -11,21 +11,27 @@ interface PropertyGalleryProps {
   title: string;
 }
 
+/** Cover plus four more, the way a product page shows a shoe. */
+const THUMB_COUNT = 5;
+
 export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
+  const [activeSlot, setActiveSlot] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const isOpen = lightboxIndex !== null;
   const lightboxRef = useModalFocus<HTMLDivElement>(isOpen);
 
   const close = useCallback(() => setLightboxIndex(null), []);
 
+  const wrap = useCallback(
+    (index: number) => (index + photos.length) % photos.length,
+    [photos.length],
+  );
+
   const step = useCallback(
     (delta: number) => {
-      setLightboxIndex((current) => {
-        if (current === null) return current;
-        return (current + delta + photos.length) % photos.length;
-      });
+      setLightboxIndex((current) => (current === null ? current : wrap(current + delta)));
     },
-    [photos.length],
+    [wrap],
   );
 
   useEffect(() => {
@@ -48,62 +54,118 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
   // the information the visitor came for anyway.
   if (photos.length === 0) return null;
 
-  const [cover, ...rest] = photos;
-  const sideThumbs = rest.slice(0, 4);
+  /*
+   * Each slot in the picker points at a photo. Normally that is one-to-one,
+   * but a listing with a single photo on file still gets the full five-slot
+   * strip pointing back at it — the product-page shape holds while the client
+   * is handing over one image per imóvel, and it fills in on its own the day a
+   * folder of real photos lands under `public/imagens/imoveis/<código>/`.
+   */
+  const slots: readonly number[] =
+    photos.length === 1
+      ? Array.from({ length: THUMB_COUNT }, () => 0)
+      : photos.slice(0, THUMB_COUNT).map((_, index) => index);
+
+  const activeIndex = slots[activeSlot] ?? 0;
+  const active = photos[activeIndex];
+  const hiddenCount = photos.length - slots.length;
+
+  // Closing the lightbox leaves the stage on whatever photo the visitor
+  // navigated to, so the two views never disagree about "where am I".
+  function closeAndSync(index: number) {
+    const slot = slots.indexOf(index);
+    if (slot !== -1) setActiveSlot(slot);
+    close();
+  }
+
+  function stepStage(delta: number) {
+    setActiveSlot((current) => (current + delta + slots.length) % slots.length);
+  }
 
   return (
     <>
-      <div className="grid gap-2 overflow-hidden rounded-card md:grid-cols-[2fr_1fr] md:gap-2">
-        <button
-          type="button"
-          onClick={() => setLightboxIndex(0)}
-          className="group relative aspect-[4/3] w-full overflow-hidden bg-surface-muted md:aspect-auto md:h-[30rem]"
-          aria-label="Abrir galeria de fotos"
-        >
-          <Image
-            src={cover.url}
-            alt={cover.alt}
-            fill
-            priority
-            sizes="(min-width: 768px) 66vw, 100vw"
-            className="object-cover transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.02]"
-          />
-          <span className="absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-black/55 px-3.5 py-2 text-sm text-white backdrop-blur-sm">
-            <Expand className="size-4" aria-hidden />
-            {photos.length} fotos
-          </span>
-        </button>
+      <div className="flex flex-col gap-2.5">
+        <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-card bg-surface-muted sm:aspect-[3/2]">
+          <button
+            type="button"
+            onClick={() => setLightboxIndex(activeIndex)}
+            className="absolute inset-0 size-full cursor-zoom-in"
+            aria-label={`Ampliar foto ${activeIndex + 1} de ${photos.length}`}
+          >
+            <Image
+              // Keyed so a switch swaps the element instead of mutating one in
+              // place, which is what lets the fade actually play.
+              key={active.url}
+              src={active.url}
+              alt={active.alt}
+              fill
+              priority
+              sizes="(min-width: 1024px) 60vw, 100vw"
+              className="animate-[fade-in_0.35s_var(--ease-out-soft)] object-cover"
+            />
+          </button>
 
-        {sideThumbs.length > 0 ? (
-          <div className="hidden grid-cols-2 gap-2 md:grid md:h-[30rem] md:grid-rows-2">
-            {sideThumbs.map((photo, index) => {
-              const photoIndex = index + 1;
-              const isLast = index === sideThumbs.length - 1;
-              const hiddenCount = photos.length - sideThumbs.length - 1;
+          <span className="pointer-events-none absolute bottom-4 left-4 inline-flex items-center gap-2 rounded-full bg-black/55 px-3.5 py-2 text-sm text-white backdrop-blur-sm">
+            <Expand className="size-4" aria-hidden />
+            {photos.length} {photos.length === 1 ? 'foto' : 'fotos'}
+          </span>
+
+          {photos.length > 1 ? (
+            <>
+              <ArrowButton side="left" label="Foto anterior" onClick={() => stepStage(-1)} />
+              <ArrowButton side="right" label="Próxima foto" onClick={() => stepStage(1)} />
+            </>
+          ) : null}
+        </div>
+
+        {slots.length > 1 ? (
+          <ul
+            role="list"
+            className="grid gap-2.5"
+            style={{ gridTemplateColumns: `repeat(${slots.length}, minmax(0, 1fr))` }}
+          >
+            {slots.map((photoIndex, slot) => {
+              const photo = photos[photoIndex];
+              const isActive = slot === activeSlot;
+              // The last slot doubles as the way into the rest of the set when
+              // there is more on file than the strip can show.
+              const isOverflow = slot === slots.length - 1 && hiddenCount > 0;
               return (
-                <button
-                  key={photo.url}
-                  type="button"
-                  onClick={() => setLightboxIndex(photoIndex)}
-                  className="group relative overflow-hidden bg-surface-muted"
-                  aria-label={`Ver foto ${photoIndex + 1}`}
-                >
-                  <Image
-                    src={photo.url}
-                    alt={photo.alt}
-                    fill
-                    sizes="25vw"
-                    className="object-cover transition-transform duration-700 ease-[var(--ease-out-soft)] group-hover:scale-[1.04]"
-                  />
-                  {isLast && hiddenCount > 0 ? (
-                    <span className="absolute inset-0 flex items-center justify-center bg-ink/55 text-lg font-medium text-white">
-                      +{hiddenCount}
-                    </span>
-                  ) : null}
-                </button>
+                <li key={slot}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      isOverflow ? setLightboxIndex(photoIndex) : setActiveSlot(slot)
+                    }
+                    aria-pressed={isOverflow ? undefined : isActive}
+                    aria-label={
+                      isOverflow
+                        ? `Ver as outras ${hiddenCount + 1} fotos`
+                        : `Ver foto ${photoIndex + 1}`
+                    }
+                    className={`relative block aspect-[4/3] w-full overflow-hidden rounded-lg bg-surface-muted transition-[opacity,box-shadow] ${
+                      isActive
+                        ? 'opacity-100 shadow-[inset_0_0_0_2px_var(--color-brand-700)]'
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <Image
+                      src={photo.url}
+                      alt={photo.alt}
+                      fill
+                      sizes="(min-width: 1024px) 12vw, 20vw"
+                      className="object-cover"
+                    />
+                    {isOverflow ? (
+                      <span className="absolute inset-0 flex items-center justify-center bg-ink/60 text-sm font-medium text-white">
+                        +{hiddenCount + 1}
+                      </span>
+                    ) : null}
+                  </button>
+                </li>
               );
             })}
-          </div>
+          </ul>
         ) : null}
       </div>
 
@@ -121,7 +183,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
             </p>
             <button
               type="button"
-              onClick={close}
+              onClick={() => closeAndSync(lightboxIndex)}
               aria-label="Fechar galeria"
               className="inline-flex size-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
             >
@@ -142,26 +204,44 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
 
           {photos.length > 1 ? (
             <>
-              <button
-                type="button"
-                onClick={() => step(-1)}
-                aria-label="Foto anterior"
-                className="absolute left-3 top-1/2 inline-flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
-              >
-                <ChevronLeft className="size-6" aria-hidden />
-              </button>
-              <button
-                type="button"
-                onClick={() => step(1)}
-                aria-label="Próxima foto"
-                className="absolute right-3 top-1/2 inline-flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
-              >
-                <ChevronRight className="size-6" aria-hidden />
-              </button>
+              <ArrowButton side="left" label="Foto anterior" onClick={() => step(-1)} large />
+              <ArrowButton side="right" label="Próxima foto" onClick={() => step(1)} large />
             </>
           ) : null}
         </div>
       ) : null}
     </>
+  );
+}
+
+function ArrowButton({
+  side,
+  label,
+  onClick,
+  large = false,
+}: {
+  side: 'left' | 'right';
+  label: string;
+  onClick: () => void;
+  large?: boolean;
+}) {
+  const Icon = side === 'left' ? ChevronLeft : ChevronRight;
+  // Two skins, written out in full: conflicting Tailwind utilities resolve by
+  // their order in the stylesheet, not in the class attribute, so a shared base
+  // plus an override would not reliably win.
+  const skin = large
+    ? 'size-12 bg-white/10 text-white hover:bg-white/20'
+    : 'size-10 bg-white/85 text-ink shadow-sm hover:bg-white';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      className={`absolute top-1/2 inline-flex -translate-y-1/2 items-center justify-center rounded-full backdrop-blur-sm transition-colors ${
+        side === 'left' ? 'left-3' : 'right-3'
+      } ${skin}`}
+    >
+      <Icon className={large ? 'size-6' : 'size-5'} aria-hidden />
+    </button>
   );
 }

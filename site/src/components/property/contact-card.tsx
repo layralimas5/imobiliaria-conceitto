@@ -23,7 +23,7 @@ export function ContactCard({
   const primaryOperation: Operation = operations[0] ?? 'venda';
 
   return (
-    <aside className="lg:sticky lg:top-24 lg:self-start">
+    <aside>
       <div className="rounded-card border border-line bg-surface p-6 shadow-card">
         <div className="space-y-3 border-b border-line pb-5">
           {operations.includes('venda') ? (
@@ -91,14 +91,23 @@ export function ContactCard({
           </div>
         ) : null}
       </div>
+    </aside>
+  );
+}
 
-      <div className="mt-4 rounded-card border border-line bg-surface p-6 shadow-card">
-        <h2 className="text-sm font-medium">Agendar uma visita</h2>
-        <p className="mt-1 text-xs text-ink-faint">
-          Respondemos em horário comercial, normalmente no mesmo dia.
-        </p>
-        <LeadForm propertyCode={code} className="mt-5" />
-      </div>
+/**
+ * Its own card, stacked right under the price block: the visitor reads the
+ * value, sees the WhatsApp button, and the form is the next thing down if they
+ * would rather be called back than start the conversation themselves.
+ */
+export function VisitCard({ code }: { code: string }) {
+  return (
+    <aside className="rounded-card border border-line bg-surface p-6 shadow-card">
+      <h2 className="text-sm font-medium">Agendar uma visita</h2>
+      <p className="mt-1 text-xs text-ink-faint">
+        Respondemos em horário comercial, normalmente no mesmo dia.
+      </p>
+      <LeadForm propertyCode={code} className="mt-5" />
     </aside>
   );
 }

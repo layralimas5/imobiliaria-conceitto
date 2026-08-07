@@ -15,7 +15,7 @@ import { TYPE_LABELS } from '@/domain/search';
 import { formatArea, formatMonthlyCost, formatPrice } from '@/lib/format';
 import { PropertyGallery } from '@/components/property/property-gallery';
 import { PropertyCard } from '@/components/property/property-card';
-import { ContactCard } from '@/components/property/contact-card';
+import { ContactCard, VisitCard } from '@/components/property/contact-card';
 import { PropertyMap } from '@/components/map/property-map';
 import { toMapMarker } from '@/components/map/map-marker';
 import { SITE } from '@/lib/site-config';
@@ -155,7 +155,7 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
             <li aria-hidden>/</li>
             <li>
               <Link
-                href={`${operation === 'venda' ? '/comprar' : '/alugar'}?city=${property.address.citySlug}`}
+                href={`/imoveis?operacao=${operation}&city=${property.address.citySlug}`}
                 className="hover:text-ink"
               >
                 {property.address.city}
@@ -166,43 +166,58 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
           </ol>
         </nav>
 
-        <PropertyGallery photos={property.photos} title={property.title} />
+        <header className="max-w-3xl">
+          <p className="text-eyebrow">
+            {TYPE_LABELS[property.type]}
+            {property.subtype && property.subtype !== 'padrao'
+              ? ` · ${property.subtype.replace(/-/g, ' ')}`
+              : ''}
+          </p>
+          <h1 className="text-display mt-3 text-4xl md:text-5xl">
+            {property.address.neighborhood
+              ? `${property.address.neighborhood}, ${property.address.city}`
+              : property.address.city}
+          </h1>
+          <p className="mt-3 text-lg text-ink-soft">{property.title}</p>
+        </header>
 
-        <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_22rem] lg:gap-16">
-          <div>
-            <header>
-              <p className="text-eyebrow">
-                {TYPE_LABELS[property.type]}
-                {property.subtype && property.subtype !== 'padrao'
-                  ? ` · ${property.subtype.replace(/-/g, ' ')}`
-                  : ''}
-              </p>
-              <h1 className="text-display mt-3 text-4xl md:text-5xl">
-                {property.address.neighborhood
-                  ? `${property.address.neighborhood}, ${property.address.city}`
-                  : property.address.city}
-              </h1>
-              <p className="mt-3 text-lg text-ink-soft">{property.title}</p>
-            </header>
+        {/*
+         * Product-page shape: photos, specs and copy run down one column while
+         * the contact block holds the other, so the price and the WhatsApp
+         * button stay on screen while the visitor reads. It has to be a single
+         * grid — split into two stacked ones, the second would wait for the
+         * taller contact column to end and leave a gap under the photos.
+         */}
+        <div className="mt-8 grid items-start gap-10 lg:grid-cols-[1fr_22rem] lg:gap-12">
+          <div className="min-w-0">
+            <PropertyGallery photos={property.photos} title={property.title} />
 
+            {/*
+             * Icon, number, label — read left to right on one line, so the whole
+             * spec sheet is a single glance instead of a wall of boxes. Wrapping
+             * rather than a fixed grid keeps the row tight when a listing only
+             * has three of these to show.
+             */}
             {specs.length > 0 ? (
-              <ul className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-y border-line py-7 sm:grid-cols-3">
+              <ul className="mt-8 flex flex-wrap gap-x-8 gap-y-5 border-y border-line py-5">
                 {specs.map((spec) => (
-                  <li key={spec.label} className="flex items-start gap-3">
-                    <spec.icon className="mt-0.5 size-5 shrink-0 text-ink-faint" aria-hidden />
-                    <div>
-                      <p className="text-xs uppercase tracking-wider text-ink-faint">
-                        {spec.label}
-                      </p>
-                      <p className="mt-0.5 font-medium">{spec.value}</p>
-                    </div>
+                  <li key={spec.label} className="flex items-center gap-2.5">
+                    <spec.icon
+                      className="size-5 shrink-0 text-brand-700"
+                      aria-hidden
+                      strokeWidth={1.5}
+                    />
+                    <span className="text-sm">
+                      <span className="font-medium">{spec.value}</span>
+                      <span className="ml-1.5 text-ink-faint">{spec.label}</span>
+                    </span>
                   </li>
                 ))}
               </ul>
             ) : null}
 
             {property.description ? (
-              <section className="mt-10">
+              <section className="mt-12">
                 <h2 className="text-display text-2xl">Sobre o imóvel</h2>
                 <div className="mt-4 space-y-4 text-base leading-relaxed text-ink-soft">
                   {property.description
@@ -284,13 +299,22 @@ export default async function PropertyPage(props: PageProps<'/imovel/[...slug]'>
             ) : null}
           </div>
 
-          <ContactCard
-            code={property.code}
-            city={property.address.citySlug}
-            operations={property.operations}
-            pricing={property.pricing}
-            agent={property.agent}
-          />
+          {/*
+           * Sticky on the grid item, not inside it: the item is content-height
+           * under `items-start`, but its grid area runs the full height of the
+           * row, which is the travel the price and the WhatsApp button ride
+           * while the description scrolls past.
+           */}
+          <div className="space-y-4 lg:sticky lg:top-24">
+            <ContactCard
+              code={property.code}
+              city={property.address.citySlug}
+              operations={property.operations}
+              pricing={property.pricing}
+              agent={property.agent}
+            />
+            <VisitCard code={property.code} />
+          </div>
         </div>
 
         {similar.length > 0 ? (
