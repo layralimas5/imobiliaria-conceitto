@@ -1,23 +1,79 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Camera, KeyRound, Megaphone, ShieldCheck } from 'lucide-react';
+import {
+  ArrowRight,
+  Camera,
+  KeyRound,
+  Megaphone,
+  MessageCircle,
+  ShieldCheck,
+} from 'lucide-react';
 import { propertyRepository } from '@/data/catalog-repository';
 import { developmentRepository } from '@/data/development-catalog';
 import { TYPE_LABELS_PLURAL } from '@/domain/search';
+import { propertyPath } from '@/domain/property';
 import { PropertyCard } from '@/components/property/property-card';
-import { DevelopmentCard } from '@/components/development/development-card';
+import { DevelopmentFeature } from '@/components/development/development-feature';
 import { SearchBar } from '@/components/search/search-bar';
-import { BRANCHES, SITE } from '@/lib/site-config';
-import { heroImage, heroVideo } from '@/lib/local-media';
+import { SITE, whatsappLink } from '@/lib/site-config';
+import { LeadForm } from '@/components/property/lead-form';
+import { heroImage, heroVideo, scrollSceneMedia } from '@/lib/local-media';
 import { HeroMedia } from '@/components/layout/hero-media';
+import { ScrollScene, type ScenePhoto } from '@/components/layout/scroll-scene';
+
+/**
+ * The launch the home page leads with. Every launch stays published on
+ * `/lancamentos`; this is only about how much of the front page they take, now
+ * that each one is a full-width block rather than a card.
+ */
+const HOME_LAUNCH_SLUGS: readonly string[] = ['alba'];
 
 export default async function HomePage() {
-  const [featured, saleFacets, catalogSize, developments] = await Promise.all([
-    propertyRepository.featured(6),
-    propertyRepository.facets('venda'),
-    propertyRepository.count(),
-    developmentRepository.featured(3),
-  ]);
+  const [ranked, saleFacets, catalogSize, allDevelopments, summaries] =
+    await Promise.all([
+      propertyRepository.featured(12),
+      propertyRepository.facets('venda'),
+      propertyRepository.count(),
+      developmentRepository.all(),
+      propertyRepository.allSummaries(),
+    ]);
+
+  // Six, laid out three and three. `featured` already sorts photography first,
+  // so the ones with pictures are the ones that make it.
+  const featured = ranked.slice(0, 6);
+
+  const developments = allDevelopments.filter((development) =>
+    HOME_LAUNCH_SLUGS.includes(development.slug),
+  );
+
+  /*
+   * The scene runs entirely on the art in `public/imagens/seção-scroll`: its
+   * banner, then its film, then its stills. Falls back to listing photography
+   * only while that folder is empty, so the section never renders hollow.
+   */
+  const scene = scrollSceneMedia();
+  const scenePhotos: readonly ScenePhoto[] =
+    scene.photos.length > 0
+      ? scene.photos.map((url) => ({ url, alt: '' }))
+      : summaries
+          .flatMap((summary) =>
+            summary.type === 'apartamento' && summary.coverPhoto
+              ? [
+                  {
+                    url: summary.coverPhoto.url,
+                    alt: summary.coverPhoto.alt,
+                    href: propertyPath(summary),
+                    caption: `${summary.address.neighborhood}, ${summary.address.city}`,
+                  },
+                ]
+              : [],
+          )
+          .slice(0, 6);
+
+  const scenePoster = scene.poster ?? heroImage() ?? null;
+  const sceneVideo = scene.video ?? heroVideo();
+  // A still from the same set, reused as the owner block's backdrop.
+  const sceneBackdrop = scene.photos[1] ?? scene.photos[0] ?? scenePoster;
 
   // A file in public/imagens/banner wins; otherwise the hero borrows the first
   // featured listing's photography, as it did before.
@@ -96,7 +152,7 @@ export default async function HomePage() {
             </p>
           </div>
           <Link
-            href="/comprar"
+            href="/imoveis"
             className="group inline-flex items-center gap-2 text-sm font-medium"
           >
             Ver todos os imóveis
@@ -104,7 +160,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <ul className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((property, index) => (
             <li key={property.code} className="flex">
               <PropertyCard
@@ -120,32 +176,18 @@ export default async function HomePage() {
 
       {/* Launches */}
       {developments.length > 0 ? (
-        <section className="container-page border-t border-line pb-4 pt-16 md:pt-20">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div className="max-w-xl">
-              <p className="text-eyebrow">Lançamentos</p>
-              <h2 className="text-display mt-3 text-4xl md:text-5xl">Comprar na planta</h2>
-              <p className="mt-4 text-base leading-relaxed text-ink-soft">
-                Empreendimentos com condição de lançamento, personalização de planta e a
-                melhor tabela do ciclo de obra.
-              </p>
-            </div>
-            <Link
-              href="/lancamentos"
-              className="group inline-flex items-center gap-2 text-sm font-medium"
-            >
-              Ver todos os lançamentos
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-
-          <ul className="mt-10 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {developments.map((development) => (
-              <li key={development.slug} className="flex">
-                <DevelopmentCard development={development} className="w-full" />
-              </li>
+        <section className="container-page border-t border-line pb-10 pt-16 md:pb-12 md:pt-20">
+          {/* Same editorial treatment as /lancamentos: a launch sells a way of
+              living, which a card cannot carry. */}
+          <div className="space-y-24 md:space-y-32">
+            {developments.map((development, index) => (
+              <DevelopmentFeature
+                key={development.slug}
+                development={development}
+                reversed={index % 2 === 1}
+              />
             ))}
-          </ul>
+          </div>
         </section>
       ) : null}
 
@@ -189,7 +231,7 @@ export default async function HomePage() {
             {topCities.map((city) => (
               <li key={city.slug}>
                 <Link
-                  href={`/comprar?city=${city.slug}`}
+                  href={`/imoveis?operacao=venda&city=${city.slug}`}
                   className="group flex items-center justify-between rounded-card border border-white/20 bg-white/10 px-5 py-4 text-white backdrop-blur-sm transition-colors hover:border-white/40 hover:bg-white/20"
                 >
                   <span className="font-medium">{city.name}</span>
@@ -206,7 +248,7 @@ export default async function HomePage() {
             {saleFacets.types.map((facet) => (
               <li key={facet.type}>
                 <Link
-                  href={`/comprar?tipos=${facet.type}`}
+                  href={`/imoveis?operacao=venda&tipos=${facet.type}`}
                   className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm transition-colors hover:border-white/40 hover:bg-white/20"
                 >
                   {TYPE_LABELS_PLURAL[facet.type]}
@@ -278,9 +320,44 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Scroll scene: still, then film, then the stills again */}
+      {scenePoster ? (
+        <ScrollScene
+          posterSrc={scenePoster}
+          videoSrc={sceneVideo}
+          photos={scenePhotos}
+          eyebrow="A serra, de perto"
+          title="Um lugar para morar, não só um endereço"
+          text="Farroupilha, Bento Gonçalves e a serra inteira ao redor. Role para ver."
+        />
+      ) : null}
+
       {/* Owner CTA */}
-      <section className="bg-brand-900 py-20 text-white md:py-24">
-        <div className="container-page grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <section className="relative overflow-hidden bg-brand-900 py-20 text-white md:py-24">
+        {/*
+         * One of the scene stills, lightly blurred behind a thin brand wash.
+         * The photograph is meant to read as a photograph here — the red is a
+         * tint over it, not a lid on it — so the scrim that keeps the white
+         * copy legible is a bottom-weighted gradient rather than a flat fill.
+         */}
+        {sceneBackdrop ? (
+          <Image
+            src={sceneBackdrop}
+            alt=""
+            fill
+            sizes="100vw"
+            // Overscaled: a blur samples past the edges and would otherwise
+            // feather into transparency at the section's borders.
+            className="scale-110 object-cover blur-md"
+          />
+        ) : null}
+        <div aria-hidden className="absolute inset-0 bg-brand-900/55" />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-ink/55 via-transparent to-ink/25"
+        />
+
+        <div className="container-page relative grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
           <div>
             <p className="text-eyebrow text-white/60">Para proprietários</p>
             <h2 className="text-display mt-3 text-4xl md:text-5xl">
@@ -309,44 +386,38 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Branches */}
-      <section className="container-page py-20 md:py-24">
-        <div className="max-w-xl">
-          <p className="text-eyebrow">Onde nos encontrar</p>
-          <h2 className="text-display mt-3 text-4xl md:text-5xl">Duas lojas, uma equipe</h2>
+      {/* Atendimento Conceitto — the page closes on a way to be called back,
+          for the visitor who read this far and would rather not start the
+          conversation themselves. */}
+      <section className="container-page grid gap-12 py-20 md:py-24 lg:grid-cols-2 lg:gap-20">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-bronze-600">
+            Atendimento Conceitto
+          </p>
+          <span aria-hidden className="mt-2 block h-px w-12 bg-bronze-400" />
+
+          <h2 className="text-display mt-6 text-4xl md:text-5xl">
+            Conheça todos os detalhes
+            <br />
+            com quem <span className="text-brand-700">conhece a região</span>
+          </h2>
+          <p className="mt-6 max-w-md text-base leading-relaxed text-ink-soft">
+            Preencha seus dados e um corretor da casa liga no horário que você escolher,
+            para entender o que você procura e separar o que faz sentido.
+          </p>
+
+          <a
+            href={whatsappLink({ operation: 'venda' })}
+            target="_blank"
+            rel="noreferrer noopener"
+            className="pulse-on-hover-tight mt-8 inline-flex h-12 items-center gap-2 rounded-full bg-brand-700 px-6 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+          >
+            <MessageCircle className="size-4" aria-hidden />
+            Fale com nossos corretores
+          </a>
         </div>
-        <ul className="mt-10 grid gap-6 md:grid-cols-2">
-          {BRANCHES.map((branch) => (
-            <li
-              key={branch.id}
-              className="rounded-card border border-line bg-surface p-8 shadow-card"
-            >
-              <p className="text-eyebrow">{branch.name}</p>
-              <h3 className="text-display mt-2 text-2xl">{branch.city}</h3>
-              <address className="mt-4 not-italic text-sm leading-relaxed text-ink-soft">
-                {branch.street}
-                <br />
-                {branch.district}, {branch.city} — RS
-              </address>
-              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm">
-                <a
-                  href={`tel:+55${branch.phone.replace(/\D/g, '')}`}
-                  className="font-medium underline-offset-4 hover:underline"
-                >
-                  {branch.phone}
-                </a>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(branch.mapsQuery)}`}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="text-ink-soft underline-offset-4 hover:underline"
-                >
-                  Ver no mapa
-                </a>
-              </div>
-            </li>
-          ))}
-        </ul>
+
+        <LeadForm defaultIntent="informacoes" variant="launch" />
       </section>
     </>
   );

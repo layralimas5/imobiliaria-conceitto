@@ -87,6 +87,13 @@ export interface Development {
   /** The narrative body, one string per paragraph. */
   readonly story: readonly string[];
   readonly facts: readonly DevelopmentFact[];
+  /**
+   * The selling points, already written as lines to read. Separate from
+   * `facts`, which is label-and-value material for a spec table: composing
+   * prose out of those pairs produces "2 por apartamento vagas" as often as it
+   * produces something worth reading.
+   */
+  readonly highlights: readonly string[];
   readonly unitTypes: readonly DevelopmentUnitType[];
   /** Shared leisure and convenience areas. */
   readonly amenities: readonly string[];

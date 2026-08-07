@@ -1,4 +1,5 @@
 import { propertyRepository } from '@/data/catalog-repository';
+import { developmentPhotos } from '@/lib/local-media';
 import { DEVELOPMENT_SEEDS } from '@/data/developments';
 import { compareDevelopments, type Development, type DevelopmentSeed } from '@/domain/development';
 import type { DevelopmentRepository } from './development-repository';
@@ -12,11 +13,23 @@ async function hydrate(seed: DevelopmentSeed): Promise<Development> {
     ? await propertyRepository.findByCode(seed.listingCode)
     : null;
 
+  // Art directed for the launch page wins over what the linked unit happens to
+  // have on file, and covers the launches that have no listing at all.
+  const ownPhotos = developmentPhotos(seed.slug).map((photo) => ({
+    ...photo,
+    alt: photo.alt || `${seed.name} — ${seed.location.city}`,
+  }));
+
   // Only an omitted field falls back. An explicit null is a decision — a launch
   // that quotes prices in person must not inherit one unit's asking price.
   return {
     ...seed,
-    photos: seed.photos === undefined ? (listing?.photos ?? []) : seed.photos,
+    photos:
+      ownPhotos.length > 0
+        ? ownPhotos
+        : seed.photos === undefined
+          ? (listing?.photos ?? [])
+          : seed.photos,
     agent: seed.agent === undefined ? (listing?.agent ?? null) : seed.agent,
     priceFrom:
       seed.priceFrom === undefined ? (listing?.pricing.salePrice ?? null) : seed.priceFrom,

@@ -38,6 +38,15 @@ export const DEVELOPMENT_SEEDS: readonly DevelopmentSeed[] = [
       { label: 'Plantas', value: '84 a 130 m²' },
       { label: 'Suítes', value: 'até 3' },
     ],
+    highlights: [
+      '27 pavimentos, o edifício mais alto da cidade',
+      'Apenas 4 apartamentos por andar',
+      'Plantas de 84 a 130 m²',
+      'Até 3 suítes',
+      'Personalização de planta antes da entrega',
+      'Dois salões de festas, um deles estilo pub',
+      'Quadra de esportes, espaço fitness e terraço externo',
+    ],
     unitTypes: [
       {
         name: '2 e 3 dormitórios, até 3 suítes',
@@ -96,6 +105,15 @@ export const DEVELOPMENT_SEEDS: readonly DevelopmentSeed[] = [
       { label: 'Andares', value: '20' },
       { label: 'Por andar', value: '3 plantas' },
       { label: 'Dormitórios', value: '2 ou 3' },
+    ],
+    highlights: [
+      '47 apartamentos em 20 andares',
+      'Apenas 3 plantas por andar',
+      '2 ou 3 dormitórios, a partir de 78,51 m²',
+      'De frente para o Rio Mampituba',
+      'Piscina de borda infinita',
+      'Guarda-volumes individual para os itens de praia',
+      'Personalização de planta, acabamentos e instalações',
     ],
     unitTypes: [
       {
@@ -164,6 +182,15 @@ export const DEVELOPMENT_SEEDS: readonly DevelopmentSeed[] = [
       { label: 'Vagas', value: '2 por apartamento' },
       { label: 'Tipologias', value: '5 plantas' },
       { label: 'Salas comerciais', value: '5 com mezanino' },
+    ],
+    highlights: [
+      'Apartamentos de 95 a 110 m²',
+      '2 vagas de garagem por apartamento',
+      '5 plantas, de 2 ou 3 dormitórios',
+      'Rooftop com vista panorâmica',
+      'Piscina aquecida com vista panorâmica',
+      '5 salas comerciais com mezanino no térreo',
+      'A poucos passos da Lagoa do Violão',
     ],
     unitTypes: [
       {
@@ -239,6 +266,15 @@ export const DEVELOPMENT_SEEDS: readonly DevelopmentSeed[] = [
       { label: 'Vagas', value: '1 por sala' },
       { label: 'Situação', value: 'Em construção' },
     ],
+    highlights: [
+      'Salas a partir de 59,72 m²',
+      '1 vaga coberta por sala',
+      'Business center e coworking',
+      'Guarita com biometria',
+      'Internet e cabeamento estruturado',
+      'Água e energia com medição individualizada',
+      'No coração de Farroupilha, na Marechal Deodoro',
+    ],
     unitTypes: [
       {
         name: 'Sala comercial',
@@ -297,6 +333,15 @@ export const DEVELOPMENT_SEEDS: readonly DevelopmentSeed[] = [
       { label: 'Por andar', value: '1 apartamento' },
       { label: 'Área privativa', value: '260 m²' },
       { label: 'Pé-direito', value: '2,70 m' },
+    ],
+    highlights: [
+      '3 suítes',
+      'Apartamentos de 260 m² de área privativa',
+      'Um apartamento por andar',
+      'Vista de 360 graus',
+      'Pé-direito de 2,70 m',
+      'Parede dupla e laje de 30 cm',
+      'Esquadria de PVC e contrapiso flutuante',
     ],
     unitTypes: [
       {

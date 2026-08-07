@@ -134,3 +134,88 @@ export function listingPhotoIndex(): Map<string, readonly LocalPhoto[]> {
 export function listingPhotos(code: string): readonly LocalPhoto[] {
   return listingPhotoIndex().get(code) ?? [];
 }
+
+/**
+ * Drops the cache above.
+ *
+ * The index is read once because the build renders every listing page and a
+ * readdir per card would be thousands of syscalls for the same answer. That
+ * holds right up until the panel writes a photo into the tree at runtime, at
+ * which point the cached answer is wrong — so whoever writes calls this.
+ */
+export function invalidateListingPhotoIndex(): void {
+  indexCache = null;
+}
+
+const SCENE_DIR = 'seção-scroll';
+
+export interface ScrollSceneMedia {
+  readonly poster: string | null;
+  readonly video: string | null;
+  readonly photos: readonly string[];
+}
+
+/**
+ * Art for the home page's scroll scene, all from `public/imagens/seção-scroll`.
+ *
+ * The file whose name contains "banner" is the still the scene opens on; the
+ * rest, in filename order, are the gallery it closes with. Naming rather than a
+ * manifest, so the client can restage the scene by renaming files.
+ */
+export function scrollSceneMedia(): ScrollSceneMedia {
+  const directory = path.join(process.cwd(), 'public', 'imagens', SCENE_DIR);
+  let files: string[];
+  try {
+    files = fs.readdirSync(directory).sort();
+  } catch {
+    return { poster: null, video: null, photos: [] };
+  }
+
+  const images = files.filter((name) =>
+    IMAGE_EXTENSIONS.has(path.extname(name).toLowerCase()),
+  );
+  const video = files.find((name) =>
+    VIDEO_EXTENSIONS.has(path.extname(name).toLowerCase()),
+  );
+  const posterName = images.find((name) => /banner/i.test(name));
+
+  return {
+    poster: posterName ? publicUrl('imagens', SCENE_DIR, posterName) : null,
+    video: video ? publicUrl('imagens', SCENE_DIR, video) : null,
+    photos: images
+      .filter((name) => name !== posterName)
+      .map((name) => publicUrl('imagens', SCENE_DIR, name)),
+  };
+}
+
+const DEVELOPMENTS_DIR = path.join(process.cwd(), 'public', 'imagens', 'lancamentos');
+
+/**
+ * Photography for a launch, keyed by slug:
+ *
+ *   public/imagens/lancamentos/alba/01.jpg …
+ *
+ * A launch linked to an MSYS listing borrows that listing's photos, which
+ * covers most of them. This folder is for the ones that have no listing behind
+ * them — the Alba is sold off a landing page, not off a CRM record — and it
+ * wins over the borrowed set when both exist, because it was chosen for the
+ * launch page rather than inherited from a unit for sale.
+ */
+export function developmentPhotos(slug: string): readonly LocalPhoto[] {
+  const directory = path.join(DEVELOPMENTS_DIR, slug);
+  try {
+    return fs
+      .readdirSync(directory)
+      .filter((name) => IMAGE_EXTENSIONS.has(path.extname(name).toLowerCase()))
+      .sort()
+      .map((file) => ({
+        url: `/imagens/lancamentos/${[slug, file].map(encodeURIComponent).join('/')}`,
+        alt: '',
+        width: 1600,
+        height: 1067,
+      }));
+  } catch {
+    // Folder absent is the normal case: most launches ride on their listing.
+    return [];
+  }
+}

@@ -397,7 +397,7 @@ async function OtherDevelopments({ currentSlug }: { currentSlug: string }) {
             <li key={item.slug}>
               <Link
                 href={developmentPath(item)}
-                className="group flex h-full flex-col rounded-card border border-line bg-surface p-6 transition-colors hover:border-line-strong"
+                className="pulse-on-hover group flex h-full flex-col rounded-card border border-line bg-surface p-6 transition-colors hover:border-line-strong"
               >
                 <p className="text-eyebrow">{STAGE_LABELS[item.stage]}</p>
                 <h3 className="text-display mt-2 text-2xl">{item.name}</h3>
