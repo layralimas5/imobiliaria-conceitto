@@ -3,6 +3,7 @@ import { propertyRepository } from '@/data/catalog-repository';
 import { developmentRepository } from '@/data/development-catalog';
 import { leadSchema } from '@/domain/lead';
 import { deliverLead, type LeadContext } from '@/lib/lead-delivery';
+import { captureSiteLead } from '@/lib/lead-intake';
 
 /**
  * Lead intake.
@@ -43,6 +44,18 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const lead = { ...parsed.data, website: undefined };
   const context = await resolveContext(lead.propertyCode, lead.developmentSlug);
+
+  /*
+   * Into the CRM first, and never at the cost of the lead itself. The panel
+   * store is a JSON file; on a read-only filesystem the write throws, and that
+   * must not turn a real contact into a 502. Delivery below is what the visitor
+   * is promised.
+   */
+  try {
+    captureSiteLead(lead, context.property);
+  } catch (error) {
+    console.error('[lead] could not record in the panel', error);
+  }
 
   let outcome;
   try {
