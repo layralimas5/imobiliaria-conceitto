@@ -1,5 +1,5 @@
 import { DEMO_AGENTS, DEMO_OPERATOR } from '@/data/demo-system';
-import { Badge, Card, DemoNotice, PageHead, Stat } from '@/components/system/ui';
+import { Badge, Card, DemoNotice, PageHead, Stat, StatRow } from '@/components/system/ui';
 
 export const metadata = { title: 'Minha conta' };
 
@@ -15,23 +15,23 @@ export default function ContaPage() {
         text="Seus dados de acesso e o que está sob sua responsabilidade hoje."
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <StatRow columns={3} className="mb-8">
         <Stat label="Imóveis na carteira" value={String(me.activeListings)} />
         <Stat label="Leads em aberto" value={String(me.openLeads)} />
         <Stat label="Fechados no mês" value={String(me.closedThisMonth)} />
-      </div>
+      </StatRow>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <div className="flex items-center gap-4">
             <span
               aria-hidden
-              className="flex size-14 shrink-0 items-center justify-center rounded-full bg-brand-700 text-lg font-medium text-white"
+              className="flex size-14 shrink-0 items-center justify-center rounded-full bg-brand-700 text-lg font-bold text-white"
             >
               {DEMO_OPERATOR.name.charAt(0)}
             </span>
             <div className="min-w-0">
-              <p className="text-lg font-medium">{DEMO_OPERATOR.name}</p>
+              <p className="text-lg font-bold">{DEMO_OPERATOR.name}</p>
               <p className="mt-0.5 text-sm text-ink-soft">{DEMO_OPERATOR.role}</p>
             </div>
           </div>
@@ -45,7 +45,7 @@ export default function ContaPage() {
         </Card>
 
         <Card>
-          <h3 className="text-sm font-medium">Segurança</h3>
+          <h3 className="text-sm font-bold">Segurança</h3>
           <p className="mt-1 text-xs leading-relaxed text-ink-faint">
             A troca de senha e a verificação em duas etapas entram junto com a
             autenticação de verdade.
@@ -68,7 +68,7 @@ function Row({ term, detail }: { term: string; detail: string }) {
   return (
     <div className="flex flex-wrap justify-between gap-x-6 gap-y-1 border-b border-line pb-3 last:border-b-0 last:pb-0">
       <dt className="text-ink-faint">{term}</dt>
-      <dd className="text-right font-medium">{detail}</dd>
+      <dd className="text-right font-bold">{detail}</dd>
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function ApiPage() {
       />
 
       <Card className="mb-8">
-        <h3 className="text-sm font-medium">Endpoints do site</h3>
+        <h3 className="text-sm font-bold">Endpoints do site</h3>
         <ul className="mt-4 space-y-3">
           {ENDPOINTS.map((endpoint) => (
             <li
@@ -49,7 +49,7 @@ export default function ApiPage() {
         {DEMO_INTEGRATIONS.map((integration) => (
           <tr key={integration.name}>
             <Td>
-              <span className="font-medium">{integration.name}</span>
+              <span className="font-bold">{integration.name}</span>
             </Td>
             <Td muted>{integration.detail}</Td>
             <Td>
