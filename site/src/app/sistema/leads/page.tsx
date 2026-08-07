@@ -1,46 +1,23 @@
-import {
-  DEMO_AGENTS,
-  DEMO_LEADS,
-  LEAD_STAGE_LABELS,
-  type DemoLead,
-} from '@/data/demo-system';
-import { readStore } from '@/lib/system-store';
+import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
+import { scopedAgents, scopedLeads } from '@/data/scoped';
+import { currentScope } from '@/lib/branch-cookie';
+import { LEAD_STAGE_LABELS, LEAD_STAGE_TONES, isOpen } from '@/domain/lead-pipeline';
 import { LeadForm } from '@/components/system/lead-form';
-import { Badge, DemoNotice, PageHead, Stat, Table, Td } from '@/components/system/ui';
+import { Badge, DemoNotice, PageHead, Stat, StatRow, Table, Td } from '@/components/system/ui';
 
 // Reflects what the panel just created, so it is never cached.
 export const dynamic = 'force-dynamic';
 
 export const metadata = { title: 'Leads' };
 
-const TONE: Record<string, 'neutral' | 'brand' | 'good' | 'warn'> = {
-  novo: 'brand',
-  contato: 'neutral',
-  visita: 'warn',
-  proposta: 'warn',
-  fechado: 'good',
-};
-
-export default function LeadsPage() {
-  const store = readStore();
-
-  // What the panel registered comes first, then the seeded examples.
-  const leads = [
-    ...store.leads.map((lead) => ({
-      name: lead.name,
-      phone: lead.phone,
-      interest: lead.interest,
-      source: lead.source,
-      stage: lead.stage,
-      agent: lead.agent,
-      createdAt: lead.createdAt,
-    })),
-    ...DEMO_LEADS.map((lead) => ({ ...lead }) as Record<keyof DemoLead, string>),
-  ];
-
-  const open = leads.filter((lead) => lead.stage !== 'fechado').length;
+export default async function LeadsPage() {
+  const scope = await currentScope();
+  const leads = await scopedLeads(scope);
+  const open = leads.filter((lead) => isOpen(lead.stage)).length;
   const fromSite = leads.filter((lead) => lead.source === 'Site').length;
-  const agentNames = DEMO_AGENTS.map((agent) => agent.name);
+  const closed = leads.filter((lead) => lead.stage === 'fechado').length;
+  const agentNames = scopedAgents(scope).map((agent) => agent.name);
 
   return (
     <>
@@ -48,30 +25,60 @@ export default function LeadsPage() {
       <PageHead
         eyebrow="Atendimento"
         title="Leads"
-        text="Tudo que chega pelo site, pelo WhatsApp e pelos portais, com o corretor responsável e em que ponto está a conversa."
+        text="Tudo que chega pelo site, pelo WhatsApp e pelos portais. Quem veio do site já entra vinculado ao imóvel que a pessoa estava vendo."
         action={<LeadForm agents={agentNames} />}
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <Stat label="Leads em aberto" value={String(open)} hint="Aguardando retorno" />
-        <Stat label="Vindos do site" value={String(fromSite)} hint="Nos últimos 7 dias" />
+      <StatRow className="mb-4">
+        <Stat label="Leads em aberto" value={String(open)} hint="Aguardando próxima ação" />
+        <Stat label="Vindos do site" value={String(fromSite)} hint="Entrada automática" />
+        <Stat
+          label="Conversão"
+          value={`${leads.length > 0 ? Math.round((closed / leads.length) * 100) : 0}%`}
+          hint={`${closed} fechados`}
+        />
         <Stat label="Tempo médio" value="1 h 12" hint="Até o primeiro contato" />
-      </div>
+      </StatRow>
 
-      <Table head={['Nome', 'Interesse', 'Origem', 'Corretor', 'Etapa', 'Entrada']}>
+      <p className="mb-8">
+        <Link
+          href="/sistema/crm"
+          className="inline-flex items-center gap-1 text-sm text-brand-700 underline-offset-4 hover:underline"
+        >
+          Ver os mesmos leads no funil
+          <ArrowUpRight className="size-4" aria-hidden />
+        </Link>
+      </p>
+
+      <Table head={['Nome', 'Interesse', 'Origem', 'Corretor', 'Etapa', 'Próxima ação', 'Entrada']}>
         {leads.map((lead) => (
-          <tr key={`${lead.name}-${lead.createdAt}`}>
+          <tr key={lead.id}>
             <Td>
-              <span className="font-medium">{lead.name}</span>
+              <Link
+                href={`/sistema/leads/${lead.id}`}
+                className="font-bold underline-offset-4 hover:underline"
+              >
+                {lead.name}
+              </Link>
               <span className="mt-0.5 block text-xs text-ink-faint">{lead.phone}</span>
             </Td>
-            <Td muted>{lead.interest}</Td>
+            <Td muted>
+              {lead.interest}
+              {lead.viewed.length > 0 ? (
+                <span className="mt-0.5 block text-xs text-ink-faint">
+                  Viu {lead.viewed.length} imóvel{lead.viewed.length > 1 ? 'is' : ''}:{' '}
+                  {lead.viewed.join(', ')}
+                </span>
+              ) : null}
+            </Td>
             <Td muted>{lead.source}</Td>
             <Td muted>{lead.agent}</Td>
             <Td>
-              <Badge tone={TONE[lead.stage] ?? 'neutral'}>
-                {LEAD_STAGE_LABELS[lead.stage as DemoLead['stage']] ?? lead.stage}
-              </Badge>
+              <Badge tone={LEAD_STAGE_TONES[lead.stage]}>{LEAD_STAGE_LABELS[lead.stage]}</Badge>
+            </Td>
+            <Td>
+              <span className="text-sm">{lead.nextAction}</span>
+              <span className="mt-0.5 block text-xs text-ink-faint">{lead.nextActionAt}</span>
             </Td>
             <Td muted>{lead.createdAt}</Td>
           </tr>

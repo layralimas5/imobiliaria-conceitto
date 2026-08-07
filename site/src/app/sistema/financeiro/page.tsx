@@ -1,12 +1,13 @@
-import {
-  DEMO_ENTRIES,
-  ENTRY_KIND_LABELS,
-  type DemoEntry,
-} from '@/data/demo-system';
+import { ENTRY_KIND_LABELS, type DemoEntry } from '@/data/demo-system';
+import { scopedEntries } from '@/data/scoped';
+import { currentScope } from '@/lib/branch-cookie';
 import { formatPrice } from '@/lib/format';
-import { Badge, DemoNotice, PageHead, Stat, Table, Td } from '@/components/system/ui';
+import { Badge, DemoNotice, PageHead, Stat, StatRow, Table, Td } from '@/components/system/ui';
 
 export const metadata = { title: 'Financeiro' };
+
+// Scoped to the selected unit, which lives in a cookie.
+export const dynamic = 'force-dynamic';
 
 const TONE: Record<DemoEntry['status'], 'good' | 'neutral' | 'warn'> = {
   recebido: 'good',
@@ -14,15 +15,18 @@ const TONE: Record<DemoEntry['status'], 'good' | 'neutral' | 'warn'> = {
   previsto: 'warn',
 };
 
-export default function FinanceiroPage() {
-  const settled = DEMO_ENTRIES.filter((entry) => entry.status !== 'previsto');
+export default async function FinanceiroPage() {
+  const scope = await currentScope();
+  const entries = scopedEntries(scope);
+
+  const settled = entries.filter((entry) => entry.status !== 'previsto');
   const income = settled
     .filter((entry) => entry.amount > 0)
     .reduce((total, entry) => total + entry.amount, 0);
   const outgoing = settled
     .filter((entry) => entry.amount < 0)
     .reduce((total, entry) => total + entry.amount, 0);
-  const forecast = DEMO_ENTRIES.filter((entry) => entry.status === 'previsto').reduce(
+  const forecast = entries.filter((entry) => entry.status === 'previsto').reduce(
     (total, entry) => total + entry.amount,
     0,
   );
@@ -36,7 +40,7 @@ export default function FinanceiroPage() {
         text="Comissões, aluguéis recebidos, repasses a proprietários e as despesas do mês."
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <StatRow className="mb-8">
         <Stat label="Entradas no mês" value={formatPrice(income) ?? '—'} />
         <Stat label="Saídas no mês" value={formatPrice(Math.abs(outgoing)) ?? '—'} />
         <Stat
@@ -45,10 +49,10 @@ export default function FinanceiroPage() {
           hint="Já liquidado"
         />
         <Stat label="Previsto" value={formatPrice(forecast) ?? '—'} hint="A receber" />
-      </div>
+      </StatRow>
 
       <Table head={['Data', 'Lançamento', 'Tipo', 'Situação', 'Valor']}>
-        {DEMO_ENTRIES.map((entry) => (
+        {entries.map((entry) => (
           <tr key={`${entry.date}-${entry.description}`}>
             <Td muted>{entry.date}</Td>
             <Td>{entry.description}</Td>
@@ -64,7 +68,7 @@ export default function FinanceiroPage() {
             </Td>
             <Td>
               <span
-                className={`font-medium ${entry.amount < 0 ? 'text-ink-soft' : 'text-green-800'}`}
+                className={`font-bold ${entry.amount < 0 ? 'text-ink-soft' : 'text-green-800'}`}
               >
                 {entry.amount < 0 ? '− ' : ''}
                 {formatPrice(Math.abs(entry.amount))}

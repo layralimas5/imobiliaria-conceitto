@@ -10,9 +10,13 @@ import { readStore, type StoredListing } from '@/lib/system-store';
  * They join the synced MSYS catalog rather than living beside it, so a listing
  * registered by the team is indistinguishable from one that came down the feed
  * — which is the whole point of being able to register one.
+ *
+ * Status is not filtered here: `catalog-repository` applies it to every listing
+ * at once, synced and manual alike, so there is a single place that decides what
+ * the site publishes.
  */
-export function manualListings(): readonly Property[] {
-  return readStore().listings.map(toProperty);
+export async function manualListings(): Promise<readonly Property[]> {
+  return (await readStore()).listings.map(toProperty);
 }
 
 function toProperty(listing: StoredListing): Property {
@@ -26,7 +30,7 @@ function toProperty(listing: StoredListing): Property {
     type: listing.type as PropertyType,
     subtype: 'padrao',
     address: {
-      street: null,
+      street: listing.street || null,
       number: null,
       neighborhood: listing.neighborhood,
       neighborhoodSlug: slugify(listing.neighborhood),
@@ -40,7 +44,7 @@ function toProperty(listing: StoredListing): Property {
       longitude: null,
       locationPrecision: 'neighborhood',
     },
-    areas: { built: listing.area, total: listing.area, land: null },
+    areas: { built: listing.area, total: listing.area, land: listing.landArea },
     rooms: {
       bedrooms: listing.bedrooms,
       suites: listing.suites,
@@ -50,19 +54,32 @@ function toProperty(listing: StoredListing): Property {
     pricing: {
       salePrice: listing.operation === 'venda' ? listing.price : null,
       rentPrice: listing.operation === 'locacao' ? listing.price : null,
-      condoFee: null,
-      propertyTax: null,
+      condoFee: listing.condoFee,
+      propertyTax: listing.propertyTax,
     },
     features: listing.features,
-    // Same folder convention as every other listing: `imagens/imoveis/<código>`.
-    photos: listingPhotos(listing.code).map((photo) => ({
+    /*
+     * Photos uploaded through the panel are served by `/api/foto`, not out of
+     * `public/`: on a serverless host nothing can be written into the deployed
+     * bundle. Listings registered before that change fall back to the folder
+     * convention every synced listing still uses.
+     */
+    photos: (listing.photos?.length
+      ? listing.photos.map((key) => ({
+          url: `/api/foto/${key.split('/').map(encodeURIComponent).join('/')}`,
+          alt: '',
+          width: 1024,
+          height: 683,
+        }))
+      : listingPhotos(listing.code)
+    ).map((photo) => ({
       ...photo,
       alt: photo.alt || `${listing.title} — ${listing.neighborhood}`,
     })),
-    videoUrl: null,
+    videoUrl: listing.videoUrl || null,
     tourUrl: null,
     floorPlanUrl: null,
-    agent: null,
+    agent: listing.agent ? { name: listing.agent, creci: '', phone: null, photoUrl: null } : null,
     isExclusive: listing.isExclusive,
     isFeatured: false,
     publishedAt: stamp,

@@ -44,3 +44,8 @@ next-env.d.ts
 
 # Demo panel records (see src/lib/system-store.ts)
 /dados-sistema.json
+
+# Dados e uploads do painel de demonstração
+dados-sistema.json
+arquivos-sistema/
+

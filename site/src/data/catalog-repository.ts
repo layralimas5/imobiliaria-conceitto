@@ -24,6 +24,8 @@ import type {
 import { listingPhotos } from '@/lib/local-media';
 import { DEVELOPMENT_SEEDS } from '@/data/developments';
 import { manualListings } from '@/data/manual-listings';
+import { listingStatusMap, statusOf } from '@/data/listing-status-source';
+import { isPublished, type ListingStatus } from '@/domain/listing-status';
 
 /**
  * How many listings the site actually publishes.
@@ -125,23 +127,50 @@ const SYNCED_WITH_LOCAL_MEDIA: readonly Property[] = SYNCED.map((property) => ({
  * in `/sistema` has to appear without restarting the server. The synced side is
  * the expensive part and it is prepared once, above.
  */
-function catalog(): readonly Property[] {
-  const manual = manualListings();
-  if (manual.length === 0) return demoSlice(SYNCED_WITH_LOCAL_MEDIA);
+async function allListings(): Promise<readonly Property[]> {
+  const manual = await manualListings();
+  const slice = demoSlice(SYNCED_WITH_LOCAL_MEDIA);
 
   // Newest first, and never subject to the demo cap: someone registered it on
   // purpose, so hiding it behind a limit would read as the form having failed.
   const codes = new Set(manual.map((property) => property.code));
-  return [
-    ...manual,
-    ...demoSlice(SYNCED_WITH_LOCAL_MEDIA).filter(
-      (property) => !codes.has(property.code),
-    ),
-  ];
+  return manual.length === 0
+    ? slice
+    : [...manual, ...slice.filter((property) => !codes.has(property.code))];
 }
 
-function indexByCode(): Map<string, Property> {
-  return new Map(catalog().map((property) => [property.code, property]));
+/**
+ * Everything the office manages, published or not, each with its status.
+ *
+ * The panel needs this and the site must never use it: a vendido still belongs
+ * on the Imóveis screen and in the month's numbers, and belongs nowhere on the
+ * public catalog.
+ */
+export async function panelListings(): Promise<readonly (Property & { status: ListingStatus })[]> {
+  const statuses = await listingStatusMap();
+  return (await allListings()).map((property) => ({
+    ...property,
+    status: statusOf(property.code, statuses),
+  }));
+}
+
+async function catalog(): Promise<readonly Property[]> {
+  const all = await allListings();
+
+  /*
+   * The status gate, applied once for the whole site.
+   *
+   * This is the line that makes the panel and the site the same system: mark an
+   * imóvel as vendido, alugado or inativo in `/sistema/imoveis` and it leaves
+   * the home, the searches, the map, the sitemap and its own page on the next
+   * request. Nobody has to remember to take the anúncio down.
+   */
+  const statuses = await listingStatusMap();
+  return all.filter((property) => isPublished(statusOf(property.code, statuses)));
+}
+
+async function indexByCode(): Promise<Map<string, Property>> {
+  return new Map((await catalog()).map((property) => [property.code, property]));
 }
 
 function paginate<T>(items: readonly T[], page: number, pageSize: number): SearchResult<T> {
@@ -172,7 +201,7 @@ function countBy<T, K extends string>(
 
 class CatalogRepository implements PropertyRepository {
   async search(query: SearchQuery): Promise<SearchResult<PropertySummary>> {
-    const filtered = catalog().filter((property) => matchesQuery(property, query)).sort(
+    const filtered = (await catalog()).filter((property) => matchesQuery(property, query)).sort(
       compareBySort(query.sort, query.operation),
     );
     const page = paginate(filtered, query.page, DEFAULT_PAGE_SIZE);
@@ -180,7 +209,7 @@ class CatalogRepository implements PropertyRepository {
   }
 
   async findByCode(code: string): Promise<Property | null> {
-    return indexByCode().get(code) ?? null;
+    return (await indexByCode()).get(code) ?? null;
   }
 
   /**
@@ -191,7 +220,7 @@ class CatalogRepository implements PropertyRepository {
     const operation: Operation = property.operations[0] ?? 'venda';
     const reference = priceFor(property.pricing, operation);
 
-    const scored = catalog().filter(
+    const scored = (await catalog()).filter(
       (candidate) =>
         candidate.code !== property.code && candidate.operations.includes(operation),
     ).map((candidate) => {
@@ -219,7 +248,7 @@ class CatalogRepository implements PropertyRepository {
   }
 
   async featured(limit: number): Promise<readonly PropertySummary[]> {
-    const ranked = [...catalog()].sort((a, b) => {
+    const ranked = [...(await catalog())].sort((a, b) => {
       // Photography first when it exists, then the editorial flags. Sorting
       // rather than filtering keeps the block full while the folders are bare.
       const photos = Math.min(b.photos.length, 4) - Math.min(a.photos.length, 4);
@@ -232,7 +261,7 @@ class CatalogRepository implements PropertyRepository {
   }
 
   async facets(operation: SearchQuery['operation']): Promise<CatalogFacets> {
-    const pool = catalog().filter((property) => property.operations.includes(operation));
+    const pool = (await catalog()).filter((property) => property.operations.includes(operation));
 
     const cityCounts = countBy(pool, (property) => property.address.citySlug);
     const cityNames = new Map(pool.map((p) => [p.address.citySlug, p.address.city]));
@@ -281,11 +310,11 @@ class CatalogRepository implements PropertyRepository {
   }
 
   async count(): Promise<number> {
-    return catalog().length;
+    return (await catalog()).length;
   }
 
   async allSummaries(): Promise<readonly PropertySummary[]> {
-    return catalog().map(toSummary);
+    return (await catalog()).map(toSummary);
   }
 }
 

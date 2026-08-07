@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-/** The panel opens on Leads: it is what the team looks at first every morning. */
+/** The panel opens on the dashboard: the month in one page, before the lists. */
 export default function SistemaPage() {
-  redirect('/sistema/leads');
+  redirect('/sistema/painel');
 }
