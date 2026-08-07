@@ -11,7 +11,7 @@ export function AgentForm() {
     <RecordForm
       trigger="Cadastrar corretor"
       title="Novo corretor"
-      text="Cadastro e acesso ao sistema. Cada corretor entra com o próprio e-mail e senha."
+      text="Cadastro da pessoa na equipe. O acesso ao sistema é criado em Usuários."
       action={createAgent}
       submitLabel="Cadastrar corretor"
     >
@@ -82,73 +82,22 @@ export function AgentForm() {
             </Field>
           </Row>
 
-          <fieldset className="rounded-card border border-line bg-surface-muted p-5">
-            <legend className="px-1.5 text-xs font-medium uppercase tracking-wider text-ink-faint">
-              Acesso ao sistema
-            </legend>
-
-            <div className="space-y-4">
-              <Field
-                name="email"
-                label="E-mail de acesso"
-                error={errors.email}
-                hint="É com ele que o corretor entra no sistema."
-              >
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="off"
-                  placeholder="nome@imobiliariaconceitto.com.br"
-                  className={inputClass(errors.email)}
-                />
-              </Field>
-
-              <Row>
-                <Field
-                  name="password"
-                  label="Senha"
-                  error={errors.password}
-                  hint="Ao menos 8 caracteres."
-                >
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    autoComplete="new-password"
-                    className={inputClass(errors.password)}
-                  />
-                </Field>
-
-                <Field
-                  name="passwordConfirm"
-                  label="Repetir senha"
-                  error={errors.passwordConfirm}
-                >
-                  <input
-                    id="passwordConfirm"
-                    name="passwordConfirm"
-                    type="password"
-                    required
-                    autoComplete="new-password"
-                    className={inputClass(errors.passwordConfirm)}
-                  />
-                </Field>
-              </Row>
-            </div>
-
-            {/*
-             * Said plainly, because it is true of this build and not of a real
-             * one: the demo store keeps the password as typed. A production
-             * panel hashes it and can never show it again.
-             */}
-            <p className="mt-4 text-xs leading-relaxed text-ink-faint">
-              Nesta demonstração a senha fica gravada como digitada. Num sistema em
-              produção ela é convertida em hash e nunca mais pode ser lida.
-            </p>
-          </fieldset>
+          <Field
+            name="email"
+            label="E-mail"
+            error={errors.email}
+            hint="Contato do corretor. O login do sistema é criado em Usuários."
+          >
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="nome@imobiliariaconceitto.com.br"
+              className={inputClass(errors.email)}
+            />
+          </Field>
         </>
       )}
     </RecordForm>

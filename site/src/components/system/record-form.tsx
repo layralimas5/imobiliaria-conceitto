@@ -16,6 +16,8 @@ interface RecordFormProps {
     formData?: FormData,
   ) => Promise<ActionResult>;
   readonly submitLabel: string;
+  /** `secondary` for the second button on a screen: two primaries is no primary. */
+  readonly variant?: 'primary' | 'secondary';
   /** Receives the per-field errors the action came back with. */
   readonly children: (errors: Record<string, string>) => ReactNode;
 }
@@ -33,6 +35,7 @@ export function RecordForm({
   text,
   action,
   submitLabel,
+  variant = 'primary',
   children,
 }: RecordFormProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +53,11 @@ export function RecordForm({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-11 items-center gap-2 rounded-lg bg-brand-700 px-5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+        className={`inline-flex h-11 items-center gap-2 rounded-lg px-5 text-sm font-bold transition-colors ${
+          variant === 'primary'
+            ? 'bg-brand-700 text-white hover:bg-brand-600'
+            : 'border border-line bg-surface text-ink hover:border-line-strong hover:bg-surface-muted'
+        }`}
       >
         <Plus className="size-4" aria-hidden />
         {trigger}
@@ -119,7 +126,7 @@ export function RecordForm({
                   <button
                     type="button"
                     onClick={close}
-                    className="h-11 flex-1 rounded-lg border border-line text-sm font-medium transition-colors hover:border-line-strong"
+                    className="h-11 flex-1 rounded-lg border border-line text-sm font-bold transition-colors hover:border-line-strong"
                   >
                     {result?.ok ? 'Fechar' : 'Cancelar'}
                   </button>
@@ -141,7 +148,7 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-lg bg-brand-700 text-sm font-medium text-white transition-colors hover:bg-brand-600 disabled:opacity-60"
+      className="inline-flex h-11 flex-[2] items-center justify-center gap-2 rounded-lg bg-brand-700 text-sm font-bold text-white transition-colors hover:bg-brand-600 disabled:opacity-60"
     >
       {pending ? (
         <>
@@ -173,7 +180,7 @@ export function Field({
     <div>
       <label
         htmlFor={name}
-        className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-ink-faint"
+        className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-ink-faint"
       >
         {label}
       </label>

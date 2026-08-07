@@ -1,28 +1,34 @@
-import { DEMO_AGENTS } from '@/data/demo-system';
+import { scopedAgents } from '@/data/scoped';
+import { branchIdOf, inScope } from '@/domain/branch';
+import { currentScope } from '@/lib/branch-cookie';
 import { readStore } from '@/lib/system-store';
 import { AgentForm } from '@/components/system/agent-form';
-import { Badge, DemoNotice, PageHead, Stat, Table, Td } from '@/components/system/ui';
+import { Badge, DemoNotice, PageHead, Stat, StatRow, Table, Td } from '@/components/system/ui';
 
-// Reflects what the panel just created, so it is never cached.
+// Reflects what the panel just created, and the unit selected in the bar.
 export const dynamic = 'force-dynamic';
 
 export const metadata = { title: 'Corretores' };
 
-export default function CorretoresPage() {
+export default async function CorretoresPage() {
+  const scope = await currentScope();
+  const team = scopedAgents(scope);
   const store = readStore();
 
   const agents = [
-    ...store.agents.map((agent) => ({
-      name: agent.name,
-      creci: agent.creci,
-      branch: agent.branch,
-      email: agent.email,
-      role: agent.role,
-      activeListings: 0,
-      openLeads: 0,
-      closedThisMonth: 0,
-    })),
-    ...DEMO_AGENTS.map((agent) => ({
+    ...store.agents
+      .filter((agent) => inScope(scope, branchIdOf(agent.branch)))
+      .map((agent) => ({
+        name: agent.name,
+        creci: agent.creci,
+        branch: agent.branch,
+        email: agent.email,
+        role: agent.role,
+        activeListings: 0,
+        openLeads: 0,
+        closedThisMonth: 0,
+      })),
+    ...team.map((agent) => ({
       ...agent,
       email: `${agent.name.split(' ')[0].toLowerCase()}@imobiliariaconceitto.com.br`,
       role: 'Corretor',
@@ -38,21 +44,21 @@ export default function CorretoresPage() {
       <PageHead
         eyebrow="Equipe"
         title="Corretores"
-        text="Quem está na rua, quantos imóveis cada um carrega e como está o mês. Cada cadastro cria um acesso próprio ao sistema."
+        text="Quem está na rua, quantos imóveis cada um carrega e como está o mês. O acesso ao sistema é criado em Usuários."
         action={<AgentForm />}
       />
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-3">
+      <StatRow columns={3} className="mb-8">
         <Stat label="Corretores ativos" value={String(agents.length)} hint="Nas duas lojas" />
         <Stat label="Imóveis na carteira" value={String(listings)} />
         <Stat label="Fechados no mês" value={String(closed)} />
-      </div>
+      </StatRow>
 
-      <Table head={['Corretor', 'CRECI', 'Unidade', 'Acesso', 'Carteira', 'Fechados no mês']}>
+      <Table head={['Corretor', 'CRECI', 'Unidade', 'Contato', 'Carteira', 'Fechados no mês']}>
         {agents.map((agent) => (
           <tr key={agent.creci}>
             <Td>
-              <span className="font-medium">{agent.name}</span>
+              <span className="font-bold">{agent.name}</span>
               <span className="mt-0.5 block text-xs text-ink-faint">{agent.role}</span>
             </Td>
             <Td muted>{agent.creci}</Td>
@@ -64,7 +70,7 @@ export default function CorretoresPage() {
               {agent.activeListings} imóveis · {agent.openLeads} leads
             </Td>
             <Td>
-              <span className="font-medium">{agent.closedThisMonth}</span>
+              <span className="font-bold">{agent.closedThisMonth}</span>
             </Td>
           </tr>
         ))}
