@@ -10,6 +10,27 @@ export const LEAD_INTENT_LABELS: Record<LeadIntent, string> = {
   anunciar: 'Anunciar meu imóvel',
 };
 
+/** When the visitor would rather be called. Optional everywhere. */
+export const CONTACT_TIMES = ['manha', 'tarde', 'noite', 'qualquer'] as const;
+export type ContactTime = (typeof CONTACT_TIMES)[number];
+
+export const CONTACT_TIME_LABELS: Record<ContactTime, string> = {
+  manha: 'Manhã',
+  tarde: 'Tarde',
+  noite: 'Noite',
+  qualquer: 'Qualquer horário',
+};
+
+/** Why they are looking — it changes which unit a broker opens with. */
+export const LEAD_OBJECTIVES = ['moradia', 'investimento', 'indeciso'] as const;
+export type LeadObjective = (typeof LEAD_OBJECTIVES)[number];
+
+export const LEAD_OBJECTIVE_LABELS: Record<LeadObjective, string> = {
+  moradia: 'Moradia',
+  investimento: 'Investimento',
+  indeciso: 'Ainda avaliando',
+};
+
 const phonePattern = /^\(?\d{2}\)?\s?9?\d{4}-?\d{4}$/;
 
 export const leadSchema = z.object({
@@ -22,6 +43,8 @@ export const leadSchema = z.object({
     .max(20)
     .refine((value) => phonePattern.test(value.replace(/\s/g, '')), 'Telefone inválido'),
   intent: z.enum(LEAD_INTENTS).default('visita'),
+  contactTime: z.enum(CONTACT_TIMES).optional(),
+  objective: z.enum(LEAD_OBJECTIVES).optional(),
   message: z.string().trim().max(1000).optional(),
   propertyCode: z.string().trim().max(20).optional(),
   /** Slug of the development the visitor was looking at, when it came from a launch page. */

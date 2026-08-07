@@ -2,7 +2,15 @@
 
 import { cloneElement, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Check, Loader2 } from 'lucide-react';
-import { LEAD_INTENTS, LEAD_INTENT_LABELS, leadSchema } from '@/domain/lead';
+import {
+  CONTACT_TIMES,
+  CONTACT_TIME_LABELS,
+  LEAD_INTENTS,
+  LEAD_INTENT_LABELS,
+  LEAD_OBJECTIVES,
+  LEAD_OBJECTIVE_LABELS,
+  leadSchema,
+} from '@/domain/lead';
 
 interface LeadFormProps {
   propertyCode?: string;
@@ -10,6 +18,13 @@ interface LeadFormProps {
   developmentSlug?: string;
   className?: string;
   defaultIntent?: (typeof LEAD_INTENTS)[number];
+  /**
+   * `launch` is the wider form the lançamentos page runs: fields pair up two
+   * per row, and it swaps the free-text message for the two questions a broker
+   * actually needs before calling — when to call, and whether this is a home or
+   * an investment.
+   */
+  variant?: 'default' | 'launch';
 }
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -19,7 +34,9 @@ export function LeadForm({
   developmentSlug,
   className = '',
   defaultIntent = 'visita',
+  variant = 'default',
 }: LeadFormProps) {
+  const isLaunch = variant === 'launch';
   const [status, setStatus] = useState<Status>('idle');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -42,6 +59,10 @@ export function LeadForm({
       email: String(form.get('email') ?? ''),
       phone: String(form.get('phone') ?? ''),
       intent: String(form.get('intent') ?? defaultIntent),
+      contactTime: form.get('contactTime')
+        ? String(form.get('contactTime'))
+        : undefined,
+      objective: form.get('objective') ? String(form.get('objective')) : undefined,
       message: String(form.get('message') ?? ''),
       website: String(form.get('website') ?? ''),
       propertyCode,
@@ -111,53 +132,95 @@ export function LeadForm({
         />
       </Field>
 
-      <Field id="lead-email" label="E-mail" error={errors.email}>
-        <input
-          id="lead-email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          className={inputClass(errors.email)}
-        />
-      </Field>
+      <div className={isLaunch ? 'grid gap-3.5 sm:grid-cols-2' : 'space-y-3.5'}>
+        <Field id="lead-email" label="E-mail" error={errors.email}>
+          <input
+            id="lead-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            required
+            className={inputClass(errors.email)}
+          />
+        </Field>
 
-      <Field id="lead-phone" label="WhatsApp" error={errors.phone}>
-        <input
-          id="lead-phone"
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="(54) 99999-9999"
-          required
-          className={inputClass(errors.phone)}
-        />
-      </Field>
+        <Field id="lead-phone" label="WhatsApp" error={errors.phone}>
+          <input
+            id="lead-phone"
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="(54) 99999-9999"
+            required
+            className={inputClass(errors.phone)}
+          />
+        </Field>
+      </div>
 
-      <Field id="lead-intent" label="Assunto" error={errors.intent}>
-        <select
-          id="lead-intent"
-          name="intent"
-          defaultValue={defaultIntent}
-          className={inputClass(errors.intent)}
-        >
-          {LEAD_INTENTS.map((intent) => (
-            <option key={intent} value={intent}>
-              {LEAD_INTENT_LABELS[intent]}
-            </option>
-          ))}
-        </select>
-      </Field>
+      {isLaunch ? (
+        <div className="grid gap-3.5 sm:grid-cols-2">
+          <Field id="lead-time" label="Horário para contato" error={errors.contactTime}>
+            <select
+              id="lead-time"
+              name="contactTime"
+              defaultValue="qualquer"
+              className={inputClass(errors.contactTime)}
+            >
+              {CONTACT_TIMES.map((time) => (
+                <option key={time} value={time}>
+                  {CONTACT_TIME_LABELS[time]}
+                </option>
+              ))}
+            </select>
+          </Field>
 
-      <Field id="lead-message" label="Mensagem (opcional)" error={errors.message}>
-        <textarea
-          id="lead-message"
-          name="message"
-          rows={3}
-          className={`${inputClass(errors.message)} h-auto py-2.5`}
-        />
-      </Field>
+          <Field id="lead-objective" label="Objetivo" error={errors.objective}>
+            <select
+              id="lead-objective"
+              name="objective"
+              defaultValue="moradia"
+              className={inputClass(errors.objective)}
+            >
+              {LEAD_OBJECTIVES.map((objective) => (
+                <option key={objective} value={objective}>
+                  {LEAD_OBJECTIVE_LABELS[objective]}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+      ) : (
+        <>
+          <Field id="lead-intent" label="Assunto" error={errors.intent}>
+            <select
+              id="lead-intent"
+              name="intent"
+              defaultValue={defaultIntent}
+              className={inputClass(errors.intent)}
+            >
+              {LEAD_INTENTS.map((intent) => (
+                <option key={intent} value={intent}>
+                  {LEAD_INTENT_LABELS[intent]}
+                </option>
+              ))}
+            </select>
+          </Field>
+
+          <Field id="lead-message" label="Mensagem (opcional)" error={errors.message}>
+            <textarea
+              id="lead-message"
+              name="message"
+              rows={3}
+              className={`${inputClass(errors.message)} h-auto py-2.5`}
+            />
+          </Field>
+        </>
+      )}
+
+      {/* The launch form drops the "Assunto" picker; the page it lives on
+          already says what the lead is about. */}
+      {isLaunch ? <input type="hidden" name="intent" value={defaultIntent} /> : null}
 
       {/* Honeypot */}
       <div aria-hidden className="absolute left-[-9999px]">

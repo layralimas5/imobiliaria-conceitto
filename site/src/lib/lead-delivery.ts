@@ -1,4 +1,9 @@
-import { LEAD_INTENT_LABELS, type Lead } from '@/domain/lead';
+import {
+  CONTACT_TIME_LABELS,
+  LEAD_INTENT_LABELS,
+  LEAD_OBJECTIVE_LABELS,
+  type Lead,
+} from '@/domain/lead';
 import { propertyPath, type Property } from '@/domain/property';
 import { developmentPath, type Development } from '@/domain/development';
 import { branchFor, SITE, type Branch } from '@/lib/site-config';
@@ -208,6 +213,14 @@ function contextLines(lead: Lead, context: LeadContext, branch: Branch): Context
     { label: 'Assunto', value: LEAD_INTENT_LABELS[lead.intent] },
     { label: 'Unidade', value: branch.label },
   ];
+
+  // Only asked for on the launch form, so they are absent on most leads.
+  if (lead.contactTime) {
+    lines.push({ label: 'Melhor horário', value: CONTACT_TIME_LABELS[lead.contactTime] });
+  }
+  if (lead.objective) {
+    lines.push({ label: 'Objetivo', value: LEAD_OBJECTIVE_LABELS[lead.objective] });
+  }
 
   if (context.property) {
     lines.push({
