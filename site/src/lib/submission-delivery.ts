@@ -210,7 +210,7 @@ function htmlFor(
       <table role="presentation" style="width:100%;border-collapse:collapse">${rows}</table>
     </td></tr>
     <tr><td style="padding:0 24px 24px">
-      <a href="https://wa.me/55${phoneDigits}" style="display:inline-block;background:#af1917;color:#ffffff;font-size:14px;text-decoration:none;padding:11px 20px;border-radius:8px">Falar com o proprietário</a>
+      <a href="https://wa.me/55${phoneDigits}" style="display:inline-block;background:#54010e;color:#ffffff;font-size:14px;text-decoration:none;padding:11px 20px;border-radius:8px">Falar com o proprietário</a>
     </td></tr>
     <tr><td style="padding:0 24px 20px;color:#9ca3af;font-size:11px">Enviado por ${escapeHtml(siteOrigin())}</td></tr>
   </table>

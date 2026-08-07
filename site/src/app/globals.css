@@ -21,20 +21,22 @@
 
   /*
    * Brand red, straight off the Conceitto logo. `brand-700` IS the logo's
-   * #af1917, so a button and the mark next to it are the same red. It clears
-   * 7:1 against white, which is why the vivid original can carry text at all.
-   * 600 lightens for hover, 900 is the deep end for the footer.
+   * #54010e, so a button and the mark next to it are the same red. At 16:1
+   * against white it carries text anywhere. 600 lightens for hover, 500 is
+   * light enough to read as red in a focus ring, 900 is the footer's deep end.
    */
-  --color-brand-50: #fdf1f0;
-  --color-brand-100: #f7d6d4;
-  --color-brand-500: #c9302c;
-  --color-brand-600: #c3211e;
-  --color-brand-700: #af1917;
-  --color-brand-900: #40100e;
+  --color-brand-50: #faf1f2;
+  --color-brand-100: #eed9dc;
+  --color-brand-500: #8a2432;
+  --color-brand-600: #6e1220;
+  --color-brand-700: #54010e;
+  --color-brand-900: #3a000a;
 
-  --color-bronze-100: #f0e6d9;
-  --color-bronze-400: #b08b5c;
-  --color-bronze-600: #8a6a41;
+  /* Beige from the logo. `bronze-400` IS #c7a782; 600 darkens it enough to
+     carry white text on the badges, 100 is the tint for soft fills. */
+  --color-bronze-100: #f1e6d8;
+  --color-bronze-400: #c7a782;
+  --color-bronze-600: #8a6b47;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
@@ -44,6 +46,10 @@
   --shadow-card: 0 1px 2px rgb(20 21 15 / 0.04), 0 8px 24px -12px rgb(20 21 15 / 0.12);
   --shadow-card-hover: 0 2px 4px rgb(20 21 15 / 0.05), 0 18px 40px -16px rgb(20 21 15 / 0.22);
   --shadow-panel: 0 24px 60px -24px rgb(20 21 15 / 0.28);
+  /* Even on every side, unlike `card`, which is lit from above. For a panel
+     that should look lifted off the page rather than stacked on it. */
+  --shadow-soft: 0 0 0 1px rgb(20 21 15 / 0.03), 0 4px 12px -2px rgb(20 21 15 / 0.06),
+    0 16px 48px -16px rgb(20 21 15 / 0.2);
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -198,6 +204,16 @@
   50% {
     transform: scale(1.025);
     box-shadow: var(--shadow-card-hover);
+  }
+}
+
+/* Cross-fade for the gallery stage when the visitor picks another thumbnail. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 
