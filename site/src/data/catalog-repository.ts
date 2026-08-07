@@ -24,6 +24,8 @@ import type {
 import { listingPhotos } from '@/lib/local-media';
 import { DEVELOPMENT_SEEDS } from '@/data/developments';
 import { manualListings } from '@/data/manual-listings';
+import { listingStatusMap, statusOf } from '@/data/listing-status-source';
+import { isPublished, type ListingStatus } from '@/domain/listing-status';
 
 /**
  * How many listings the site actually publishes.
@@ -125,19 +127,46 @@ const SYNCED_WITH_LOCAL_MEDIA: readonly Property[] = SYNCED.map((property) => ({
  * in `/sistema` has to appear without restarting the server. The synced side is
  * the expensive part and it is prepared once, above.
  */
-function catalog(): readonly Property[] {
+function allListings(): readonly Property[] {
   const manual = manualListings();
-  if (manual.length === 0) return demoSlice(SYNCED_WITH_LOCAL_MEDIA);
+  const slice = demoSlice(SYNCED_WITH_LOCAL_MEDIA);
 
   // Newest first, and never subject to the demo cap: someone registered it on
   // purpose, so hiding it behind a limit would read as the form having failed.
   const codes = new Set(manual.map((property) => property.code));
-  return [
-    ...manual,
-    ...demoSlice(SYNCED_WITH_LOCAL_MEDIA).filter(
-      (property) => !codes.has(property.code),
-    ),
-  ];
+  return manual.length === 0
+    ? slice
+    : [...manual, ...slice.filter((property) => !codes.has(property.code))];
+}
+
+/**
+ * Everything the office manages, published or not, each with its status.
+ *
+ * The panel needs this and the site must never use it: a vendido still belongs
+ * on the Imóveis screen and in the month's numbers, and belongs nowhere on the
+ * public catalog.
+ */
+export function panelListings(): readonly (Property & { status: ListingStatus })[] {
+  const statuses = listingStatusMap();
+  return allListings().map((property) => ({
+    ...property,
+    status: statusOf(property.code, statuses),
+  }));
+}
+
+function catalog(): readonly Property[] {
+  const all = allListings();
+
+  /*
+   * The status gate, applied once for the whole site.
+   *
+   * This is the line that makes the panel and the site the same system: mark an
+   * imóvel as vendido, alugado or inativo in `/sistema/imoveis` and it leaves
+   * the home, the searches, the map, the sitemap and its own page on the next
+   * request. Nobody has to remember to take the anúncio down.
+   */
+  const statuses = listingStatusMap();
+  return all.filter((property) => isPublished(statusOf(property.code, statuses)));
 }
 
 function indexByCode(): Map<string, Property> {
