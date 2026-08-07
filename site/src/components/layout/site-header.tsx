@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, Phone, User, X } from 'lucide-react';
-import { BRANCHES, NAV_LINKS, SITE, whatsappLink } from '@/lib/site-config';
+import { LayoutGrid, Menu, Phone, User, X } from 'lucide-react';
+import { BRANCHES, NAV_LINKS } from '@/lib/site-config';
+import { ClientLogin } from '@/components/layout/client-login';
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const headOffice = BRANCHES[0];
@@ -20,7 +22,7 @@ export function SiteHeader() {
    * the ink is repainted white and the counter inside the "C" is knocked out,
    * so the mark is drawn by the video showing through it.
    */
-  const hasImmersiveHero = pathname === '/' || /^\/lancamentos\/[^/]+$/.test(pathname);
+  const hasImmersiveHero = pathname === '/' || pathname.startsWith('/lancamentos');
   const isTransparent = hasImmersiveHero && !isScrolled && !isOpen;
 
   useEffect(() => {
@@ -142,12 +144,12 @@ export function SiteHeader() {
             <Phone className="size-[1.15rem]" aria-hidden />
           </a>
 
-          <a
-            href={SITE.clientAreaUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            aria-label="Entrar no sistema, área do cliente"
-            title="Entrar no sistema"
+          <button
+            type="button"
+            onClick={() => setIsLoginOpen(true)}
+            aria-haspopup="dialog"
+            aria-label="Entrar na área do cliente"
+            title="Área do cliente"
             className={`inline-flex size-10 items-center justify-center rounded-full transition-colors ${
               isTransparent
                 ? 'text-white/85 hover:bg-white/15 hover:text-white'
@@ -155,20 +157,22 @@ export function SiteHeader() {
             }`}
           >
             <User className="size-[1.15rem]" aria-hidden />
-          </a>
+          </button>
 
-          <a
-            href={whatsappLink({})}
-            target="_blank"
-            rel="noreferrer noopener"
-            className={`ml-1 hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors sm:inline-flex ${
+          {/* The team's own way in. Next to the client icon because they are the
+              same kind of thing — a door out of the site and into a panel. */}
+          <Link
+            href="/sistema"
+            aria-label="Abrir o sistema da imobiliária"
+            title="Sistema"
+            className={`inline-flex size-10 items-center justify-center rounded-full transition-colors ${
               isTransparent
-                ? 'bg-white/15 text-white ring-1 ring-white/30 hover:bg-white/25'
-                : 'bg-brand-700 text-white hover:bg-brand-600'
+                ? 'text-white/85 hover:bg-white/15 hover:text-white'
+                : 'text-ink-soft hover:bg-surface-muted hover:text-ink'
             }`}
           >
-            Falar com corretor
-          </a>
+            <LayoutGrid className="size-[1.15rem]" aria-hidden />
+          </Link>
 
           <button
             ref={toggleRef}
@@ -210,18 +214,11 @@ export function SiteHeader() {
                 </li>
               ))}
             </ul>
-            <a
-              href={whatsappLink({})}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-brand-700 px-5 py-3 text-sm font-medium text-white"
-            >
-              <Phone className="size-4" aria-hidden />
-              Falar com corretor
-            </a>
           </nav>
         </div>
       ) : null}
+
+      {isLoginOpen ? <ClientLogin onClose={() => setIsLoginOpen(false)} /> : null}
     </header>
   );
 }
