@@ -33,10 +33,10 @@ const LEAD_SERIES = [
 export default async function RelatoriosPage() {
   const scope = await currentScope();
   const team = scopedAgents(scope);
-  const leads = scopedLeads(scope);
+  const leads = await scopedLeads(scope);
   const proposals = scopedProposals(scope);
-  const contracts = scopedContracts(scope);
-  const summaries = scopedListings(scope);
+  const contracts = await scopedContracts(scope);
+  const summaries = await scopedListings(scope);
 
   const revenuePoints: ChartPoint[] = DEMO_MONTHS.map((month) => ({
     label: month.month,

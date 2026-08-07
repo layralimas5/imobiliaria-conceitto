@@ -113,10 +113,10 @@ function daysUntil(brazilianDate: string, today: Date): number | null {
  */
 export default async function PainelPage() {
   const scope = await currentScope();
-  const leads = scopedLeads(scope);
-  const listings = scopedListings(scope);
+  const leads = await scopedLeads(scope);
+  const listings = await scopedListings(scope);
   const proposals = scopedProposals(scope);
-  const contracts = scopedContracts(scope);
+  const contracts = await scopedContracts(scope);
   const schedule = scopedSchedule(scope);
   const entries = scopedEntries(scope);
   const today = new Date();

@@ -52,7 +52,7 @@ export async function POST(request: Request): Promise<NextResponse> {
    * is promised.
    */
   try {
-    captureSiteLead(lead, context.property);
+    await captureSiteLead(lead, context.property);
   } catch (error) {
     console.error('[lead] could not record in the panel', error);
   }

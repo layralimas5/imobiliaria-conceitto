@@ -1,0 +1,29 @@
+# Netlify build settings.
+#
+# Este arquivo tem de ficar na RAIZ do repositório. O Netlify procura o
+# `netlify.toml` a partir da raiz (ou do base configurado na interface), e um
+# `base = "site"` escrito dentro de `site/netlify.toml` é circular: o Netlify
+# precisaria já saber que deve olhar em `site/` para ler o arquivo que manda
+# olhar em `site/`. Enquanto o arquivo esteve lá dentro, nada disto foi lido —
+# o plugin do Next não rodou, o `.next` foi publicado como pasta estática, e
+# como não existe `index.html` na raiz dele o site inteiro respondeu 404.
+#
+# O plugin do Next é o que transforma o build do App Router em funções do
+# Netlify. Sem ele só as páginas estáticas subiriam e toda rota dinâmica —
+# incluindo o painel inteiro — cairia em 404.
+
+[build]
+  base = "site"
+  command = "npm run build"
+  # Relativo ao `base`, ou seja `site/.next`.
+  publish = ".next"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  # Fixado para que uma mudança no padrão do Netlify não mova o build.
+  NODE_VERSION = "22"
+
+# `NEXT_PUBLIC_SITE_URL` e os segredos de entrega de lead são definidos na
+# interface do Netlify, nunca aqui: este arquivo é versionado e eles não.

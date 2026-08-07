@@ -25,7 +25,7 @@ const KIND_TONE: Record<DemoDocument['linkedKind'], 'neutral' | 'brand' | 'good'
  */
 export default async function DocumentosPage() {
   const scope = await currentScope();
-  const documents = allDocuments();
+  const documents = await allDocuments();
   const byKind = (kind: DemoDocument['linkedKind']) =>
     documents.filter((document) => document.linkedKind === kind).length;
 
@@ -39,17 +39,17 @@ export default async function DocumentosPage() {
         action={
           <DocumentForm
             targets={{
-              imóvel: scopedListings(scope).map(
+              imóvel: (await scopedListings(scope)).map(
                 (listing) =>
                   `${listing.code} — ${listing.title || TYPE_LABELS[listing.type]}, ${
                     listing.address.neighborhood
                   }`,
               ),
-              contrato: scopedContracts(scope).map(
+              contrato: (await scopedContracts(scope)).map(
                 (contract) => `${contract.code} — ${contract.listing}`,
               ),
               proprietário: scopedOwners(scope).map((owner) => owner.name),
-              cliente: scopedClients(scope).map((client) => client.name),
+              cliente: (await scopedClients(scope)).map((client) => client.name),
             }}
           />
         }

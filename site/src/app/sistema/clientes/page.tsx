@@ -30,7 +30,7 @@ const KIND_LABELS: Record<DemoClient['kind'], string> = {
  */
 export default async function ClientesPage() {
   const scope = await currentScope();
-  const clients = scopedClients(scope);
+  const clients = await scopedClients(scope);
   const active = clients.filter((client) => client.status !== 'inativo');
   const buyers = clients.filter((client) => client.kind !== 'locatário');
   const averageBudget =
@@ -47,7 +47,7 @@ export default async function ClientesPage() {
           <ClientForm
             agents={scopedAgents(scope).map((agent) => agent.name)}
             owners={scopedOwners(scope).map((owner) => owner.name)}
-            listings={scopedListings(scope).map((listing) => ({
+            listings={(await scopedListings(scope)).map((listing) => ({
               code: listing.code,
               label: `${listing.code} — ${
                 listing.title || TYPE_LABELS[listing.type]

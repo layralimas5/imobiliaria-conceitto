@@ -15,8 +15,8 @@ import { readStore, type StoredListing } from '@/lib/system-store';
  * at once, synced and manual alike, so there is a single place that decides what
  * the site publishes.
  */
-export function manualListings(): readonly Property[] {
-  return readStore().listings.map(toProperty);
+export async function manualListings(): Promise<readonly Property[]> {
+  return (await readStore()).listings.map(toProperty);
 }
 
 function toProperty(listing: StoredListing): Property {
@@ -58,8 +58,21 @@ function toProperty(listing: StoredListing): Property {
       propertyTax: listing.propertyTax,
     },
     features: listing.features,
-    // Same folder convention as every other listing: `imagens/imoveis/<código>`.
-    photos: listingPhotos(listing.code).map((photo) => ({
+    /*
+     * Photos uploaded through the panel are served by `/api/foto`, not out of
+     * `public/`: on a serverless host nothing can be written into the deployed
+     * bundle. Listings registered before that change fall back to the folder
+     * convention every synced listing still uses.
+     */
+    photos: (listing.photos?.length
+      ? listing.photos.map((key) => ({
+          url: `/api/foto/${key.split('/').map(encodeURIComponent).join('/')}`,
+          alt: '',
+          width: 1024,
+          height: 683,
+        }))
+      : listingPhotos(listing.code)
+    ).map((photo) => ({
       ...photo,
       alt: photo.alt || `${listing.title} — ${listing.neighborhood}`,
     })),

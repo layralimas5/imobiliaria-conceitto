@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function CrmPage() {
   const scope = await currentScope();
-  const leads = scopedLeads(scope);
+  const leads = await scopedLeads(scope);
 
   const cards: readonly BoardCard[] = leads.map((lead) => ({
     id: lead.id,

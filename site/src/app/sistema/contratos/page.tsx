@@ -26,7 +26,7 @@ const STATUS_TONE: Record<DemoContract['status'], 'neutral' | 'brand' | 'good' |
 
 export default async function ContratosPage() {
   const scope = await currentScope();
-  const contracts = scopedContracts(scope);
+  const contracts = await scopedContracts(scope);
   const active = contracts.filter((contract) => contract.status === 'vigente');
   const rentals = active.filter((contract) => contract.kind === 'locação');
   const monthlyRent = rentals.reduce((total, contract) => total + contract.value, 0);
@@ -35,15 +35,15 @@ export default async function ContratosPage() {
     0,
   );
 
-  const listings = scopedListings(scope).map((listing) => ({
+  const listings = (await scopedListings(scope)).map((listing) => ({
     code: listing.code,
     label: `${listing.code} — ${listing.title || TYPE_LABELS[listing.type]}, ${
       listing.address.neighborhood
     }`,
   }));
   const owners = scopedOwners(scope).map((owner) => owner.name);
-  const clients = scopedClients(scope).map((client) => client.name);
-  const documents = allDocuments();
+  const clients = (await scopedClients(scope)).map((client) => client.name);
+  const documents = await allDocuments();
   /** A document is attached to a contract when its vínculo starts with the code. */
   const attachmentsOf = (code: string) =>
     documents.filter(

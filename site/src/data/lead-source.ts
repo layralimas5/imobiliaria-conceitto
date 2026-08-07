@@ -7,8 +7,8 @@ import { readStore } from '@/lib/system-store';
  * registered by hand and the ones the site posted. Shaped into one record so no
  * screen has to care which door a contact came through.
  */
-export function allLeads(): readonly DemoLead[] {
-  const stored = readStore().leads.map<DemoLead>((lead) => ({
+export async function allLeads(): Promise<readonly DemoLead[]> {
+  const stored = (await readStore()).leads.map<DemoLead>((lead) => ({
     id: lead.id,
     name: lead.name,
     phone: lead.phone,
@@ -40,8 +40,8 @@ export function allLeads(): readonly DemoLead[] {
   return [...stored, ...DEMO_LEADS];
 }
 
-export function findLead(id: string): DemoLead | null {
-  return allLeads().find((lead) => lead.id === id) ?? null;
+export async function findLead(id: string): Promise<DemoLead | null> {
+  return (await allLeads()).find((lead) => lead.id === id) ?? null;
 }
 
 export function countByStage(leads: readonly DemoLead[]): Record<LeadStage, number> {

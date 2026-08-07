@@ -32,8 +32,8 @@ function demoDefaultFor(code: string): ListingStatus {
 }
 
 /** Every status the panel knows about, keyed by listing code. */
-export function listingStatusMap(): ReadonlyMap<string, ListingStatus> {
-  const store = readStore();
+export async function listingStatusMap(): Promise<ReadonlyMap<string, ListingStatus>> {
+  const store = await readStore();
   const map = new Map<string, ListingStatus>();
 
   for (const listing of store.listings) {
@@ -47,6 +47,7 @@ export function listingStatusMap(): ReadonlyMap<string, ListingStatus> {
   return map;
 }
 
-export function statusOf(code: string, map?: ReadonlyMap<string, ListingStatus>): ListingStatus {
-  return (map ?? listingStatusMap()).get(code) ?? demoDefaultFor(code);
+/** Takes the map so a caller listing hundreds of imóveis reads the store once. */
+export function statusOf(code: string, map: ReadonlyMap<string, ListingStatus>): ListingStatus {
+  return map.get(code) ?? demoDefaultFor(code);
 }

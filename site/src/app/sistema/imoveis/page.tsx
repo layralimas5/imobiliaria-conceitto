@@ -30,7 +30,7 @@ export default async function ImoveisPage({
   const filter = typeof params.status === 'string' ? params.status : 'todos';
 
   const scope = await currentScope();
-  const listings = scopedListings(scope);
+  const listings = await scopedListings(scope);
   const counts = LISTING_STATUSES.map((status) => ({
     status,
     count: listings.filter((listing) => listing.status === status).length,

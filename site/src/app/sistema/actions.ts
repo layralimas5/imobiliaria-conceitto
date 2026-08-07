@@ -1,6 +1,5 @@
 'use server';
 
-import fs from 'node:fs';
 import path from 'node:path';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
@@ -11,7 +10,7 @@ import { isLeadStage } from '@/domain/lead-pipeline';
 import { LISTING_STATUSES, isPublished, type ListingStatus } from '@/domain/listing-status';
 import { PROPERTY_TYPES } from '@/domain/property';
 import { invalidateListingPhotoIndex } from '@/lib/local-media';
-import { UPLOAD_DIR, readStore, todayLabel, writeStore } from '@/lib/system-store';
+import { readStore, todayLabel, writeStore, writeUpload } from '@/lib/system-store';
 
 /**
  * Switches the unit the whole panel is scoped to. Writes the cookie every server
@@ -135,7 +134,7 @@ export async function createListing(
     return { ok: false, message: 'Confira os campos destacados.', errors: fieldErrors(parsed.error) };
   }
 
-  const store = readStore();
+  const store = await readStore();
   const code = nextCode(store.listings.map((listing) => listing.code));
 
   try {
@@ -152,23 +151,20 @@ export async function createListing(
       }
     }
 
-    if (photos.length > 0) {
-      const directory = path.join(process.cwd(), 'public', 'imagens', 'imoveis', code);
-      fs.mkdirSync(directory, { recursive: true });
-      let index = 1;
-      for (const photo of photos) {
-        const extension = path.extname(photo.name).toLowerCase() || '.jpg';
-        const name = `${String(index).padStart(2, '0')}${extension}`;
-        fs.writeFileSync(
-          path.join(directory, name),
-          Buffer.from(await photo.arrayBuffer()),
-        );
-        index += 1;
-      }
-      invalidateListingPhotoIndex();
+    // Into the panel's own store, not into `public/`: the deployed bundle is
+    // read-only on a serverless host, and `/api/foto` is what serves these back.
+    const keys: string[] = [];
+    let index = 1;
+    for (const photo of photos) {
+      const extension = path.extname(photo.name).toLowerCase() || '.jpg';
+      const key = `imoveis/${code}/${String(index).padStart(2, '0')}${extension}`;
+      await writeUpload(key, Buffer.from(await photo.arrayBuffer()));
+      keys.push(key);
+      index += 1;
     }
+    invalidateListingPhotoIndex();
 
-    writeStore({
+    await writeStore({
       ...store,
       listings: [
         {
@@ -178,6 +174,7 @@ export async function createListing(
             .split(/[,;\n]/)
             .map((feature) => feature.trim())
             .filter(Boolean),
+          photos: keys,
           createdAt: new Date().toISOString(),
         },
         ...store.listings,
@@ -219,11 +216,11 @@ export async function updateListingStatus(
   }
 
   try {
-    const store = readStore();
+    const store = await readStore();
     // Works for a listing cadastrado no painel and for one that came down the
     // MSYS feed: the override carries the status for whatever the panel does not
     // own, and `listing-status-source` reads both.
-    writeStore({
+    await writeStore({
       ...store,
       listings: store.listings.map((entry) =>
         entry.code === code ? { ...entry, status } : entry,
@@ -279,8 +276,8 @@ export async function createLead(
   }
 
   try {
-    const store = readStore();
-    writeStore({
+    const store = await readStore();
+    await writeStore({
       ...store,
       leads: [
         {
@@ -309,14 +306,14 @@ export async function updateLeadStage(id: string, stage: string): Promise<Action
   if (!isLeadStage(stage)) return { ok: false, message: 'Etapa inválida.' };
 
   try {
-    const store = readStore();
+    const store = await readStore();
     if (!store.leads.some((lead) => lead.id === id)) {
       return {
         ok: false,
         message: 'Lead de demonstração: a etapa muda na tela, mas não é gravada.',
       };
     }
-    writeStore({
+    await writeStore({
       ...store,
       leads: store.leads.map((lead) => (lead.id === id ? { ...lead, stage } : lead)),
     });
@@ -333,11 +330,11 @@ export async function updateLeadStage(id: string, stage: string): Promise<Action
 /** Hands a lead to a corretor — the manual half of lead distribution. */
 export async function assignLead(id: string, agent: string): Promise<ActionResult> {
   try {
-    const store = readStore();
+    const store = await readStore();
     if (!store.leads.some((lead) => lead.id === id)) {
       return { ok: false, message: 'Lead de demonstração: a atribuição não é gravada.' };
     }
-    writeStore({
+    await writeStore({
       ...store,
       leads: store.leads.map((lead) => (lead.id === id ? { ...lead, agent } : lead)),
     });
@@ -377,11 +374,11 @@ export async function createAgent(
   }
 
   try {
-    const store = readStore();
+    const store = await readStore();
     if (store.agents.some((existing) => existing.email === parsed.data.email)) {
       return { ok: false, message: 'Já existe um corretor com esse e-mail.', errors: { email: 'E-mail em uso' } };
     }
-    writeStore({
+    await writeStore({
       ...store,
       agents: [
         { id: crypto.randomUUID(), ...parsed.data, createdAt: todayLabel() },
@@ -430,11 +427,11 @@ export async function createUser(
   delete (user as { passwordConfirm?: string }).passwordConfirm;
 
   try {
-    const store = readStore();
+    const store = await readStore();
     if (store.users.some((existing) => existing.email === user.email)) {
       return { ok: false, message: 'Já existe um usuário com esse e-mail.', errors: { email: 'E-mail em uso' } };
     }
-    writeStore({
+    await writeStore({
       ...store,
       users: [
         { id: crypto.randomUUID(), ...user, createdAt: todayLabel() },
@@ -511,7 +508,7 @@ export async function createClient(
   let code: string | null = null;
 
   try {
-    const store = readStore();
+    const store = await readStore();
     const client = {
       id: crypto.randomUUID(),
       name: data.name,
@@ -548,7 +545,7 @@ export async function createClient(
       });
     }
 
-    writeStore({ ...store, clients: [client, ...store.clients], contracts });
+    await writeStore({ ...store, clients: [client, ...store.clients], contracts });
   } catch (error) {
     return { ok: false, message: `Não foi possível salvar: ${messageOf(error)}` };
   }
@@ -593,9 +590,9 @@ export async function createContract(
 
   let code: string;
   try {
-    const store = readStore();
+    const store = await readStore();
     code = nextContractCode(store.contracts.map((entry) => entry.code));
-    writeStore({
+    await writeStore({
       ...store,
       contracts: [
         {
@@ -668,15 +665,13 @@ export async function createDocument(
   let storedAs: string | null = null;
 
   try {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-    storedAs = `${id}${path.extname(file.name).toLowerCase()}`;
-    fs.writeFileSync(
-      path.join(UPLOAD_DIR, storedAs),
-      Buffer.from(await file.arrayBuffer()),
-    );
+    // Under `documentos/`, which `/api/foto` refuses to serve: a matrícula or
+    // an RG must never be one guessed URL away from the internet.
+    storedAs = `documentos/${id}${path.extname(file.name).toLowerCase()}`;
+    await writeUpload(storedAs, Buffer.from(await file.arrayBuffer()));
 
-    const store = readStore();
-    writeStore({
+    const store = await readStore();
+    await writeStore({
       ...store,
       documents: [
         {

@@ -34,8 +34,8 @@ import {
  * those wrong on one screen and the panel starts contradicting itself.
  */
 
-export function scopedListings(scope: BranchScope) {
-  return panelListings().filter((listing) =>
+export async function scopedListings(scope: BranchScope) {
+  return (await panelListings()).filter((listing) =>
     inScope(scope, branchOfCity(listing.address.city)),
   );
 }
@@ -52,13 +52,13 @@ export function scopedOwners(scope: BranchScope) {
   return DEMO_OWNERS.filter((owner) => inScope(scope, branchIdOf(owner.branch)));
 }
 
-export function scopedLeads(scope: BranchScope) {
-  return allLeads().filter((lead) => inScope(scope, branchOfAgent(lead.agent)));
+export async function scopedLeads(scope: BranchScope) {
+  return (await allLeads()).filter((lead) => inScope(scope, branchOfAgent(lead.agent)));
 }
 
 /** What the panel registered comes first, then the seeded examples. */
-export function scopedClients(scope: BranchScope): readonly DemoClient[] {
-  const stored = readStore().clients.map<DemoClient>((client) => ({
+export async function scopedClients(scope: BranchScope): Promise<readonly DemoClient[]> {
+  const stored = (await readStore()).clients.map<DemoClient>((client) => ({
     name: client.name,
     phone: client.phone,
     email: client.email,
@@ -79,8 +79,8 @@ export function scopedProposals(scope: BranchScope) {
   return DEMO_PROPOSALS.filter((proposal) => inScope(scope, branchOfAgent(proposal.agent)));
 }
 
-export function scopedContracts(scope: BranchScope): readonly DemoContract[] {
-  const store = readStore();
+export async function scopedContracts(scope: BranchScope): Promise<readonly DemoContract[]> {
+  const store = await readStore();
 
   const stored = store.contracts.map<DemoContract>((contract) => ({
     code: contract.code,
@@ -109,8 +109,8 @@ export function scopedContracts(scope: BranchScope): readonly DemoContract[] {
 }
 
 /** Documents are not cut by unit: a matrícula belongs to the imóvel, not a loja. */
-export function allDocuments(): readonly DemoDocument[] {
-  const stored = readStore().documents.map<DemoDocument>((document) => ({
+export async function allDocuments(): Promise<readonly DemoDocument[]> {
+  const stored = (await readStore()).documents.map<DemoDocument>((document) => ({
     name: document.name,
     kind: (document.kind as DemoDocument['kind']) ?? 'outro',
     linkedTo: document.linkedTo,

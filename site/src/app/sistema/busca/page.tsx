@@ -46,8 +46,8 @@ export default async function BuscaPage({ searchParams }: PageProps<'/sistema/bu
   const term = toText(params.q, '').trim().toLowerCase();
 
   const scope = await currentScope();
-  const listings = scopedListings(scope);
-  const clients = scopedClients(scope);
+  const listings = await scopedListings(scope);
+  const clients = await scopedClients(scope);
   // Only what can still be offered: proposing a vendido to a client is worse
   // than showing nothing.
   const available = listings

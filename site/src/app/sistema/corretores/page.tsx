@@ -13,7 +13,7 @@ export const metadata = { title: 'Corretores' };
 export default async function CorretoresPage() {
   const scope = await currentScope();
   const team = scopedAgents(scope);
-  const store = readStore();
+  const store = await readStore();
 
   const agents = [
     ...store.agents

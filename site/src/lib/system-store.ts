@@ -79,6 +79,8 @@ export interface StoredListing {
   readonly bathrooms: number | null;
   readonly parkingSpaces: number | null;
   readonly features: readonly string[];
+  /** Upload keys under `imoveis/`, in gallery order. Served by `/api/foto`. */
+  readonly photos: readonly string[];
   readonly videoUrl: string;
   readonly owner: string;
   readonly agent: string;
@@ -166,31 +168,107 @@ const EMPTY: SystemStore = {
   documents: [],
 };
 
-/** Uploads land here, next to the store and outside anything Next serves. */
-export const UPLOAD_DIR = path.join(process.cwd(), 'arquivos-sistema');
+/** Uploads land here in local development, outside anything Next serves. */
+const UPLOAD_DIR = path.join(process.cwd(), 'arquivos-sistema');
 
-/** Read fresh every time: the file is small and staleness would be a bug. */
-export function readStore(): SystemStore {
+const STORE_KEY = 'dados-sistema';
+const RECORDS_STORE = 'conceitto-painel';
+const FILES_STORE = 'conceitto-arquivos';
+
+/**
+ * Whether this process can write to its own filesystem.
+ *
+ * On Netlify it cannot: the function bundle is read-only and `/tmp` belongs to
+ * one warm instance, so a cadastro written there disappears the moment the next
+ * request lands somewhere else. Netlify Blobs is the store that survives, and
+ * it is available with no configuration once the site is deployed.
+ */
+function onNetlify(): boolean {
+  return process.env.NETLIFY === 'true' || Boolean(process.env.NETLIFY_BLOBS_CONTEXT);
+}
+
+function normalise(parsed: Partial<SystemStore>): SystemStore {
+  return {
+    leads: parsed.leads ?? [],
+    agents: parsed.agents ?? [],
+    listings: parsed.listings ?? [],
+    users: parsed.users ?? [],
+    listingStatuses: parsed.listingStatuses ?? {},
+    clients: parsed.clients ?? [],
+    contracts: parsed.contracts ?? [],
+    documents: parsed.documents ?? [],
+  };
+}
+
+/** Read fresh every time: the payload is small and staleness would be a bug. */
+export async function readStore(): Promise<SystemStore> {
+  if (onNetlify()) {
+    try {
+      const { getStore } = await import('@netlify/blobs');
+      const parsed = await getStore(RECORDS_STORE).get(STORE_KEY, { type: 'json' });
+      return parsed ? normalise(parsed as Partial<SystemStore>) : EMPTY;
+    } catch (error) {
+      console.error('[store] leitura no Blobs falhou', error);
+      return EMPTY;
+    }
+  }
+
   try {
-    const parsed = JSON.parse(fs.readFileSync(FILE, 'utf8')) as Partial<SystemStore>;
-    return {
-      leads: parsed.leads ?? [],
-      agents: parsed.agents ?? [],
-      listings: parsed.listings ?? [],
-      users: parsed.users ?? [],
-      listingStatuses: parsed.listingStatuses ?? {},
-      clients: parsed.clients ?? [],
-      contracts: parsed.contracts ?? [],
-      documents: parsed.documents ?? [],
-    };
+    return normalise(JSON.parse(fs.readFileSync(FILE, 'utf8')) as Partial<SystemStore>);
   } catch {
     // Absent or unreadable is the normal state before anything is created.
     return EMPTY;
   }
 }
 
-export function writeStore(next: SystemStore): void {
+export async function writeStore(next: SystemStore): Promise<void> {
+  if (onNetlify()) {
+    const { getStore } = await import('@netlify/blobs');
+    await getStore(RECORDS_STORE).setJSON(STORE_KEY, next);
+    return;
+  }
   fs.writeFileSync(FILE, `${JSON.stringify(next, null, 2)}\n`, 'utf8');
+}
+
+/**
+ * Uploaded bytes: listing photography and the documents attached to a record.
+ *
+ * Same two drivers as the records above, and the same reason. Nothing written
+ * here ever lands in `public/` — the panel serves photos through a route it
+ * controls, and documents are not served at all.
+ */
+export async function writeUpload(key: string, bytes: Buffer): Promise<void> {
+  if (onNetlify()) {
+    const { getStore } = await import('@netlify/blobs');
+    // `set` takes an ArrayBuffer, and `bytes.buffer` may be a pooled slab that
+    // holds more than this Buffer — the slice is what actually belongs to it.
+    await getStore(FILES_STORE).set(
+      key,
+      bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer,
+    );
+    return;
+  }
+  const file = path.join(UPLOAD_DIR, key);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, bytes);
+}
+
+export async function readUpload(key: string): Promise<Buffer | null> {
+  if (onNetlify()) {
+    try {
+      const { getStore } = await import('@netlify/blobs');
+      const data = await getStore(FILES_STORE).get(key, { type: 'arrayBuffer' });
+      return data ? Buffer.from(data) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  try {
+    return fs.readFileSync(path.join(UPLOAD_DIR, key));
+  } catch {
+    return null;
+  }
 }
 
 /** Timestamp for created records, formatted the way the panel displays dates. */

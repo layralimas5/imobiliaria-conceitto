@@ -30,10 +30,10 @@ const EVENT_LABELS = {
  */
 export default async function LeadPage({ params }: PageProps<'/sistema/leads/[id]'>) {
   const { id } = await params;
-  const lead = findLead(id);
+  const lead = await findLead(id);
   if (!lead) notFound();
 
-  const listings = panelListings();
+  const listings = await panelListings();
   const viewed = lead.viewed
     .map((code) => listings.find((listing) => listing.code === code))
     .filter((listing): listing is (typeof listings)[number] => listing !== undefined);

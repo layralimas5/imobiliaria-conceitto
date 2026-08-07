@@ -13,7 +13,7 @@ export const metadata = { title: 'Leads' };
 
 export default async function LeadsPage() {
   const scope = await currentScope();
-  const leads = scopedLeads(scope);
+  const leads = await scopedLeads(scope);
   const open = leads.filter((lead) => isOpen(lead.stage)).length;
   const fromSite = leads.filter((lead) => lead.source === 'Site').length;
   const closed = leads.filter((lead) => lead.stage === 'fechado').length;

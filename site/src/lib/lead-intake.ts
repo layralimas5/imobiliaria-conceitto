@@ -15,15 +15,15 @@ import { readStore, todayLabel, writeStore } from '@/lib/system-store';
  * the panel is a demo store on disk, and losing a real lead because a JSON file
  * could not be written would be the worst possible trade.
  */
-export function captureSiteLead(lead: Lead, property: Property | null): void {
-  const store = readStore();
+export async function captureSiteLead(lead: Lead, property: Property | null): Promise<void> {
+  const store = await readStore();
 
   const agent = assignTo(property, store.leads.length);
   const interest = property
     ? `${property.title || property.type} — ${property.address.neighborhood}, ${property.address.city}`
     : (lead.message || 'Contato pelo site');
 
-  writeStore({
+  await writeStore({
     ...store,
     leads: [
       {

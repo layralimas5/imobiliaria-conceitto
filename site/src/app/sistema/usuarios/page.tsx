@@ -34,7 +34,7 @@ const ROLE_TONE: Record<string, 'neutral' | 'brand' | 'good' | 'warn'> = {
 export default async function UsuariosPage() {
   const scope = await currentScope();
   const demoUsers = scopedUsers(scope);
-  const store = readStore();
+  const store = await readStore();
 
   const users = [
     ...store.users.map((user) => ({
