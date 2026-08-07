@@ -69,9 +69,9 @@ export function ClientLogin({ onClose }: ClientLoginProps) {
           <Image
             src="/imagens/logo-branco.png"
             alt="Imobiliária Conceitto"
-            width={132}
+            width={175}
             height={30}
-            className="h-7 w-auto object-contain object-left"
+            className="h-6 w-auto object-contain object-left"
           />
           <button
             type="button"

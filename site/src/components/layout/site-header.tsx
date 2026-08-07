@@ -71,7 +71,7 @@ export function SiteHeader() {
         <Link
           href="/"
           aria-label="Conceitto, página inicial"
-          className="relative block h-8 w-[8.3rem] shrink-0 md:h-9 md:w-[9.35rem]"
+          className="relative block h-6 w-[7.6rem] shrink-0 md:h-7 md:w-[8.4rem]"
         >
           {/* Both marks stay mounted and cross-fade; swapping `src` would blink. */}
           <Image
