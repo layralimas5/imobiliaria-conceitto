@@ -405,3 +405,31 @@ build antigo. Para conferir do lado da Lay: `npm run dev` em `site/`, e se der
 7. Trocar geração estática por ISR quando o feed chegar. Hoje são 1654 páginas
    pré-renderizadas e o build leva ~6 min, então cada atualização de catálogo
    exige deploy novo.
+
+---
+
+## Sexta entrega — painel interno e demonstração (06/08/2026)
+
+O site ganhou área do cliente e um painel interno em `/sistema` (Leads,
+Corretores, Imóveis, CRM, Financeiro, Configurações e API). Ambos são
+**demonstrações**: os dados são fictícios, vivem em `src/data/demo-*.ts` e cada
+tela diz isso na própria interface. Não há autenticação de verdade em nenhum dos
+dois.
+
+O catálogo está limitado a **10 imóveis** (`CATALOG_LIMIT` em
+`src/data/catalog-repository.ts`) enquanto a proposta não fecha. Todo imóvel com
+foto entra na seleção, seja qual for o limite.
+
+### Pendências novas
+
+1. **Cadastro de imóvel não vai funcionar no Netlify.** O painel grava num JSON
+   e escreve as fotos em `public/imagens/imoveis/`. Netlify roda em funções
+   serverless, onde o sistema de arquivos é somente leitura: o formulário vai
+   falhar com "Não foi possível salvar". Todo o resto do painel funciona, porque
+   só lê. Para o cadastro funcionar em produção é preciso trocar
+   `src/lib/system-store.ts` por armazenamento de verdade — Netlify Blobs
+   resolve o JSON, e as fotos pedem um bucket (Blobs, S3 ou Cloudinary).
+2. **Autenticação.** Hoje `/sistema` é acessível por URL e tem ícone no header
+   do site. Antes de qualquer coisa pública, precisa de login real.
+3. **Senha de corretor em texto puro.** O cadastro grava como digitado, e a tela
+   avisa. Em produção, hash.
