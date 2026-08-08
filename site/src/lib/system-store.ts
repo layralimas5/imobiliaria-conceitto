@@ -17,6 +17,14 @@ import path from 'node:path';
 
 const FILE = path.join(process.cwd(), 'dados-sistema.json');
 
+/** One entry in a lead's atendimento history, as it is stored. */
+export interface StoredLeadEvent {
+  readonly at: string;
+  readonly kind: string;
+  readonly detail: string;
+  readonly by: string;
+}
+
 export interface StoredLead {
   readonly id: string;
   readonly name: string;
@@ -30,6 +38,40 @@ export interface StoredLead {
   readonly notes: string;
   /** The listing the visitor was looking at when they asked to be contacted. */
   readonly propertyCode: string | null;
+  readonly createdAt: string;
+  /**
+   * Everything below is written by the lead's own page and absent on records
+   * created before it existed — `lead-source` fills the gaps on read, so an
+   * older `dados-sistema.json` keeps working untouched.
+   */
+  readonly branch?: string;
+  readonly document?: string;
+  /** Listing codes attached to the lead, on top of the one it arrived with. */
+  readonly listings?: readonly string[];
+  readonly nextAction?: string;
+  readonly nextActionAt?: string;
+  readonly history?: readonly StoredLeadEvent[];
+}
+
+/**
+ * A compromisso in the agenda.
+ *
+ * Carries `leadId` because the reason it exists is almost always a lead: the
+ * visita marked from a ficha has to show up on the agenda *and* stay visible
+ * from the ficha, and a loose copy in each place would drift apart.
+ */
+export interface StoredAppointment {
+  readonly id: string;
+  /** ISO `yyyy-mm-dd`; the display label is derived, never stored. */
+  readonly date: string;
+  readonly time: string;
+  readonly title: string;
+  readonly kind: string;
+  readonly agent: string;
+  readonly where: string;
+  readonly withWhom: string;
+  readonly status: string;
+  readonly leadId: string | null;
   readonly createdAt: string;
 }
 
@@ -133,6 +175,11 @@ export interface StoredDocument {
   readonly kind: string;
   readonly linkedKind: string;
   readonly linkedTo: string;
+  /**
+   * The record's id, when the anexo was made from inside it. `linkedTo` is a
+   * label someone can retype or rename; this is what a ficha filters by.
+   */
+  readonly linkedId?: string | null;
   readonly size: string;
   readonly uploadedBy: string;
   readonly uploadedAt: string;
@@ -155,6 +202,7 @@ export interface SystemStore {
   readonly clients: readonly StoredClient[];
   readonly contracts: readonly StoredContract[];
   readonly documents: readonly StoredDocument[];
+  readonly appointments: readonly StoredAppointment[];
 }
 
 const EMPTY: SystemStore = {
@@ -166,6 +214,7 @@ const EMPTY: SystemStore = {
   clients: [],
   contracts: [],
   documents: [],
+  appointments: [],
 };
 
 /** Uploads land here in local development, outside anything Next serves. */
@@ -197,6 +246,7 @@ function normalise(parsed: Partial<SystemStore>): SystemStore {
     clients: parsed.clients ?? [],
     contracts: parsed.contracts ?? [],
     documents: parsed.documents ?? [],
+    appointments: parsed.appointments ?? [],
   };
 }
 
@@ -271,6 +321,38 @@ export async function readUpload(key: string): Promise<Buffer | null> {
   }
 }
 
+/**
+ * O histórico de um lead, incluindo o que é derivado.
+ *
+ * Um lead que nunca foi tocado não tem eventos gravados, mas tem uma entrada —
+ * a hora em que chegou e por onde. Derivar aqui, num lugar só, garante que a
+ * ficha e a primeira gravação enxerguem exatamente a mesma lista.
+ */
+export function leadHistory(lead: StoredLead): readonly StoredLeadEvent[] {
+  if (lead.history && lead.history.length > 0) return lead.history;
+
+  return [
+    {
+      at: lead.createdAt,
+      kind: 'entrada',
+      detail: lead.propertyCode
+        ? `Interesse no imóvel ${lead.propertyCode}`
+        : `Cadastrado no painel — ${lead.source}`,
+      by: lead.source,
+    },
+    ...(lead.notes
+      ? [{ at: lead.createdAt, kind: 'nota', detail: lead.notes, by: lead.agent }]
+      : []),
+  ];
+}
+
+/** O imóvel que veio do site mais os que o corretor anexou depois, sem repetir. */
+export function leadListings(lead: StoredLead): readonly string[] {
+  const codes = [...(lead.listings ?? [])];
+  if (lead.propertyCode && !codes.includes(lead.propertyCode)) codes.unshift(lead.propertyCode);
+  return codes;
+}
+
 /** Timestamp for created records, formatted the way the panel displays dates. */
 export function todayLabel(): string {
   return new Intl.DateTimeFormat('pt-BR', {
@@ -278,4 +360,12 @@ export function todayLabel(): string {
     month: '2-digit',
     year: 'numeric',
   }).format(new Date());
+}
+
+/** `08/08/2026 14:32` — for a history entry, where the hour is the useful part. */
+export function nowLabel(): string {
+  return `${todayLabel()} ${new Intl.DateTimeFormat('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date())}`;
 }

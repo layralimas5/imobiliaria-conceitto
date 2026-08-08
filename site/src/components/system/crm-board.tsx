@@ -49,7 +49,17 @@ export function CrmBoard({ cards: initial }: { cards: readonly BoardCard[] }) {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    /*
+     * Uma raia por etapa, todas na mesma linha, com rolagem lateral quando não
+     * cabem. É assim que um funil se lê: da esquerda para a direita, do primeiro
+     * contato ao fechamento. Quebrar em duas fileiras de quatro faz a etapa 5
+     * aparecer embaixo da 1, e a ordem — que é a única informação que o quadro
+     * carrega além dos cards — se perde.
+     *
+     * O `pb-3` é o espaço da barra de rolagem: sem ele ela cobre o rodapé da
+     * última coluna.
+     */
+    <div className="-mx-1 flex snap-x gap-4 overflow-x-auto px-1 pb-3">
       {LEAD_STAGES.map((stage) => {
         const inStage = cards.filter((card) => card.stage === stage);
         return (
@@ -64,7 +74,9 @@ export function CrmBoard({ cards: initial }: { cards: readonly BoardCard[] }) {
             /* The breath is off while a card is in the air: a drop target that
                scales under the pointer moves the very edges the drop is being
                aimed at. */
-            className={`rounded-card border p-3 ${dragging === null ? 'pulse-on-hover' : ''} ${
+            className={`flex w-64 shrink-0 snap-start flex-col rounded-card border p-3 sm:w-72 ${
+              dragging === null ? 'pulse-on-hover' : ''
+            } ${
               over === stage
                 ? 'border-brand-500 bg-brand-50'
                 : 'border-line bg-surface hover:border-line-strong'
@@ -75,7 +87,9 @@ export function CrmBoard({ cards: initial }: { cards: readonly BoardCard[] }) {
               <span className="text-xs text-ink-faint">{inStage.length}</span>
             </div>
 
-            <ul className="space-y-2.5">
+            {/* A coluna rola sozinha: uma etapa cheia não pode esticar a página
+                e empurrar as outras sete para fora da altura da tela. */}
+            <ul className="max-h-[32rem] min-h-24 space-y-2.5 overflow-y-auto">
               {inStage.map((card) => (
                 <li key={card.id}>
                   <article

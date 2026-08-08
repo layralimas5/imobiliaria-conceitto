@@ -18,6 +18,8 @@ interface RecordFormProps {
   readonly submitLabel: string;
   /** `secondary` for the second button on a screen: two primaries is no primary. */
   readonly variant?: 'primary' | 'secondary';
+  /** Substitui o "+" — uma ficha que se edita não está sendo criada. */
+  readonly icon?: ReactNode;
   /** Receives the per-field errors the action came back with. */
   readonly children: (errors: Record<string, string>) => ReactNode;
 }
@@ -36,6 +38,7 @@ export function RecordForm({
   action,
   submitLabel,
   variant = 'primary',
+  icon,
   children,
 }: RecordFormProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +62,7 @@ export function RecordForm({
             : 'border border-line bg-surface text-ink hover:border-line-strong hover:bg-surface-muted'
         }`}
       >
-        <Plus className="size-4" aria-hidden />
+        {icon ?? <Plus className="size-4" aria-hidden />}
         {trigger}
       </button>
 

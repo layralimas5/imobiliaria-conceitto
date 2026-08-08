@@ -1,6 +1,7 @@
 import { currentScope } from '@/lib/branch-cookie';
-import { scopedSchedule } from '@/data/scoped';
+import { scopedAgents, scopedSchedule } from '@/data/scoped';
 import type { DemoAppointment } from '@/data/demo-system';
+import { AppointmentForm } from '@/components/system/appointment-form';
 import { Badge, DemoNotice, PageHead, Stat, StatRow } from '@/components/system/ui';
 
 export const metadata = { title: 'Agenda' };
@@ -19,7 +20,7 @@ const STATUS_TONE: Record<DemoAppointment['status'], 'neutral' | 'brand' | 'good
  */
 export default async function AgendaPage() {
   const scope = await currentScope();
-  const schedule = scopedSchedule(scope);
+  const schedule = await scopedSchedule(scope);
   const days = schedule.reduce<Record<string, DemoAppointment[]>>((groups, item) => {
     (groups[item.day] ??= []).push(item);
     return groups;
@@ -36,6 +37,7 @@ export default async function AgendaPage() {
         eyebrow="Semana"
         title="Agenda"
         text="Visitas, avaliações, reuniões e assinaturas da equipe, com quem é o compromisso e onde."
+        action={<AppointmentForm agents={scopedAgents(scope).map((agent) => agent.name)} />}
       />
 
       <StatRow columns={3} className="mb-8">

@@ -10,11 +10,19 @@ import {
   DEMO_PROPOSALS,
   DEMO_SCHEDULE,
   DEMO_USERS,
+  type DemoAppointment,
   type DemoClient,
   type DemoContract,
   type DemoDocument,
 } from '@/data/demo-system';
 import { allLeads } from '@/data/lead-source';
+import {
+  dayLabel,
+  isAppointmentKind,
+  isAppointmentStatus,
+  labelToIso,
+  isoToLabel,
+} from '@/domain/appointment';
 import { readStore } from '@/lib/system-store';
 import {
   branchIdOf,
@@ -115,6 +123,7 @@ export async function allDocuments(): Promise<readonly DemoDocument[]> {
     kind: (document.kind as DemoDocument['kind']) ?? 'outro',
     linkedTo: document.linkedTo,
     linkedKind: (document.linkedKind as DemoDocument['linkedKind']) ?? 'imóvel',
+    linkedId: document.linkedId ?? null,
     size: document.size,
     uploadedAt: document.uploadedAt,
     uploadedBy: document.uploadedBy,
@@ -123,11 +132,60 @@ export async function allDocuments(): Promise<readonly DemoDocument[]> {
   return [...stored, ...DEMO_DOCUMENTS];
 }
 
-export function scopedSchedule(scope: BranchScope) {
-  // "Equipe" is the whole-company meeting; it shows in every unit's agenda.
-  return DEMO_SCHEDULE.filter(
-    (item) => item.agent === 'Equipe' || inScope(scope, branchOfAgent(item.agent)),
+/** Os arquivos de um registro específico, pelo id — não pelo rótulo do vínculo. */
+export async function documentsOf(
+  linkedKind: DemoDocument['linkedKind'],
+  linkedId: string,
+): Promise<readonly DemoDocument[]> {
+  return (await allDocuments()).filter(
+    (document) => document.linkedKind === linkedKind && document.linkedId === linkedId,
   );
+}
+
+/**
+ * A semana: os compromissos semeados e os que o painel marcou, na mesma linha
+ * do tempo.
+ *
+ * O rótulo do dia é recalculado a partir da data em vez de vir gravado. Um
+ * "Hoje" escrito à mão envelhece no dia seguinte, e uma agenda que mente sobre
+ * que dia é hoje é pior que uma agenda sem rótulo nenhum.
+ */
+export async function scopedSchedule(
+  scope: BranchScope,
+): Promise<readonly (DemoAppointment & { readonly iso: string })[]> {
+  const stored = (await readStore()).appointments.map((appointment) => ({
+    iso: appointment.date,
+    day: dayLabel(appointment.date),
+    date: isoToLabel(appointment.date),
+    time: appointment.time,
+    title: appointment.title,
+    kind: isAppointmentKind(appointment.kind) ? appointment.kind : ('reunião' as const),
+    agent: appointment.agent,
+    where: appointment.where,
+    withWhom: appointment.withWhom,
+    status: isAppointmentStatus(appointment.status)
+      ? appointment.status
+      : ('a confirmar' as const),
+    id: appointment.id,
+    leadId: appointment.leadId,
+  }));
+
+  const seeded = DEMO_SCHEDULE.map((item) => {
+    const iso = labelToIso(item.date);
+    return { ...item, iso, day: dayLabel(iso) };
+  });
+
+  // "Equipe" is the whole-company meeting; it shows in every unit's agenda.
+  return [...stored, ...seeded]
+    .filter((item) => item.agent === 'Equipe' || inScope(scope, branchOfAgent(item.agent)))
+    .sort((a, b) => `${a.iso} ${a.time}`.localeCompare(`${b.iso} ${b.time}`));
+}
+
+/** Os compromissos de um lead, do mais próximo para o mais distante. */
+export async function scheduleOfLead(
+  leadId: string,
+): Promise<readonly (DemoAppointment & { readonly iso: string })[]> {
+  return (await scopedSchedule('todas')).filter((item) => item.leadId === leadId);
 }
 
 export function scopedCommissions(scope: BranchScope) {

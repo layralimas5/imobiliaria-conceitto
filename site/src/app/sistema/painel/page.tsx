@@ -117,7 +117,7 @@ export default async function PainelPage() {
   const listings = await scopedListings(scope);
   const proposals = scopedProposals(scope);
   const contracts = await scopedContracts(scope);
-  const schedule = scopedSchedule(scope);
+  const schedule = await scopedSchedule(scope);
   const entries = scopedEntries(scope);
   const today = new Date();
 
