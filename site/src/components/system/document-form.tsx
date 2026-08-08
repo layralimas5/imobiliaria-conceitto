@@ -14,15 +14,27 @@ const KINDS = [
   'outro',
 ] as const;
 
-type LinkedKind = 'imóvel' | 'contrato' | 'proprietário' | 'cliente';
+type LinkedKind = 'imóvel' | 'contrato' | 'proprietário' | 'cliente' | 'lead';
 
-const LINKED_KINDS: readonly LinkedKind[] = ['imóvel', 'contrato', 'proprietário', 'cliente'];
+const LINKED_KINDS: readonly LinkedKind[] = [
+  'imóvel',
+  'contrato',
+  'proprietário',
+  'cliente',
+  'lead',
+];
 
-export interface DocumentTargets {
-  readonly imóvel: readonly string[];
-  readonly contrato: readonly string[];
-  readonly proprietário: readonly string[];
-  readonly cliente: readonly string[];
+/**
+ * As opções de vínculo, por tipo. Parcial de propósito: uma tela que já trava o
+ * tipo não precisa carregar as listas dos outros quatro.
+ */
+export type DocumentTargets = Partial<Record<LinkedKind, readonly string[]>>;
+
+/** O registro de onde o formulário foi aberto, quando ele já sabe o vínculo. */
+export interface FixedTarget {
+  readonly kind: LinkedKind;
+  readonly label: string;
+  readonly id: string;
 }
 
 /**
@@ -36,16 +48,25 @@ export function DocumentForm({
   targets,
   trigger = 'Anexar documento',
   fixedKind,
+  fixedTarget,
   variant = 'primary',
 }: {
-  targets: DocumentTargets;
+  targets?: DocumentTargets;
   trigger?: string;
   /** Locks the vínculo, for the button that lives on the Contratos screen. */
   fixedKind?: LinkedKind;
+  /**
+   * Trava o vínculo inteiro — tipo e registro. É o caso do botão que fica
+   * dentro de uma ficha: quem anexa ali já disse a que o arquivo pertence, e
+   * perguntar de novo só cria a chance de anexar no lugar errado.
+   */
+  fixedTarget?: FixedTarget;
   variant?: 'primary' | 'secondary';
 }) {
-  const [linkedKind, setLinkedKind] = useState<LinkedKind>(fixedKind ?? 'imóvel');
-  const options = targets[linkedKind];
+  const [linkedKind, setLinkedKind] = useState<LinkedKind>(
+    fixedTarget?.kind ?? fixedKind ?? 'imóvel',
+  );
+  const options = targets?.[linkedKind] ?? [];
 
   return (
     <RecordForm
@@ -83,41 +104,60 @@ export function DocumentForm({
             </select>
           </Field>
 
-          <Row>
-            <Field name="linkedKind" label="Vincular a" error={errors.linkedKind}>
-              <select
-                id="linkedKind"
-                name="linkedKind"
-                value={linkedKind}
-                disabled={fixedKind !== undefined}
-                onChange={(event) => setLinkedKind(event.target.value as LinkedKind)}
-                className={`${inputClass(errors.linkedKind)} disabled:bg-surface-muted disabled:text-ink-soft`}
-              >
-                {LINKED_KINDS.map((kind) => (
-                  <option key={kind} value={kind}>
-                    {kind.charAt(0).toUpperCase() + kind.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {fixedKind ? <input type="hidden" name="linkedKind" value={fixedKind} /> : null}
-            </Field>
+          {fixedTarget ? (
+            <>
+              <input type="hidden" name="linkedKind" value={fixedTarget.kind} />
+              <input type="hidden" name="linkedTo" value={fixedTarget.label} />
+              <input type="hidden" name="linkedId" value={fixedTarget.id} />
+              <div>
+                <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-ink-faint">
+                  Vinculado a
+                </p>
+                <p className="rounded-lg border border-line bg-surface-muted px-3 py-2.5 text-sm text-ink-soft">
+                  {fixedTarget.label}
+                  <span className="ml-2 text-xs uppercase tracking-wider text-ink-faint">
+                    {fixedTarget.kind}
+                  </span>
+                </p>
+              </div>
+            </>
+          ) : (
+            <Row>
+              <Field name="linkedKind" label="Vincular a" error={errors.linkedKind}>
+                <select
+                  id="linkedKind"
+                  name="linkedKind"
+                  value={linkedKind}
+                  disabled={fixedKind !== undefined}
+                  onChange={(event) => setLinkedKind(event.target.value as LinkedKind)}
+                  className={`${inputClass(errors.linkedKind)} disabled:bg-surface-muted disabled:text-ink-soft`}
+                >
+                  {LINKED_KINDS.map((kind) => (
+                    <option key={kind} value={kind}>
+                      {kind.charAt(0).toUpperCase() + kind.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                {fixedKind ? <input type="hidden" name="linkedKind" value={fixedKind} /> : null}
+              </Field>
 
-            <Field name="linkedTo" label="Qual" error={errors.linkedTo}>
-              <input
-                id="linkedTo"
-                name="linkedTo"
-                required
-                list="vinculos-do-documento"
-                placeholder={options[0] ?? 'Digite para buscar'}
-                className={inputClass(errors.linkedTo)}
-              />
-              <datalist id="vinculos-do-documento">
-                {options.map((option) => (
-                  <option key={option} value={option} />
-                ))}
-              </datalist>
-            </Field>
-          </Row>
+              <Field name="linkedTo" label="Qual" error={errors.linkedTo}>
+                <input
+                  id="linkedTo"
+                  name="linkedTo"
+                  required
+                  list="vinculos-do-documento"
+                  placeholder={options[0] ?? 'Digite para buscar'}
+                  className={inputClass(errors.linkedTo)}
+                />
+                <datalist id="vinculos-do-documento">
+                  {options.map((option) => (
+                    <option key={option} value={option} />
+                  ))}
+                </datalist>
+              </Field>
+            </Row>
+          )}
 
           <Field name="uploadedBy" label="Enviado por" error={errors.uploadedBy}>
             <input

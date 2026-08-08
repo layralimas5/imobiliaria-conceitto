@@ -1,5 +1,7 @@
-import { scopedAgents } from '@/data/scoped';
+import Link from 'next/link';
+import { scopedAgents, scopedLeads } from '@/data/scoped';
 import { branchIdOf, inScope } from '@/domain/branch';
+import { isOpen } from '@/domain/lead-pipeline';
 import { currentScope } from '@/lib/branch-cookie';
 import { readStore } from '@/lib/system-store';
 import { AgentForm } from '@/components/system/agent-form';
@@ -14,6 +16,15 @@ export default async function CorretoresPage() {
   const scope = await currentScope();
   const team = scopedAgents(scope);
   const store = await readStore();
+  const leads = await scopedLeads(scope);
+
+  /*
+   * Leads em aberto contados dos registros de verdade, não de um número fixo:
+   * é essa contagem que diz a quem o gerente pode passar o próximo contato, e
+   * um número decorativo aqui faria a distribuição em cima de ficção.
+   */
+  const openLeadsOf = (name: string) =>
+    leads.filter((lead) => lead.agent === name && isOpen(lead.stage)).length;
 
   const agents = [
     ...store.agents
@@ -25,11 +36,12 @@ export default async function CorretoresPage() {
         email: agent.email,
         role: agent.role,
         activeListings: 0,
-        openLeads: 0,
+        openLeads: openLeadsOf(agent.name),
         closedThisMonth: 0,
       })),
     ...team.map((agent) => ({
       ...agent,
+      openLeads: openLeadsOf(agent.name),
       email: `${agent.name.split(' ')[0].toLowerCase()}@imobiliariaconceitto.com.br`,
       role: 'Corretor',
     })),
@@ -67,7 +79,13 @@ export default async function CorretoresPage() {
             </Td>
             <Td muted>{agent.email}</Td>
             <Td muted>
-              {agent.activeListings} imóveis · {agent.openLeads} leads
+              {agent.activeListings} imóveis ·{' '}
+              <Link
+                href="/sistema/leads"
+                className="underline-offset-4 hover:text-ink hover:underline"
+              >
+                {agent.openLeads} leads em aberto
+              </Link>
             </Td>
             <Td>
               <span className="font-bold">{agent.closedThisMonth}</span>

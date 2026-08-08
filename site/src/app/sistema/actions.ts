@@ -7,10 +7,27 @@ import { z } from 'zod';
 import { isBranchScope } from '@/domain/branch';
 import { BRANCH_COOKIE } from '@/lib/branch-cookie';
 import { isLeadStage } from '@/domain/lead-pipeline';
+import {
+  APPOINTMENT_KINDS,
+  APPOINTMENT_STATUSES,
+  isoToLabel,
+} from '@/domain/appointment';
 import { LISTING_STATUSES, isPublished, type ListingStatus } from '@/domain/listing-status';
 import { PROPERTY_TYPES } from '@/domain/property';
+import { panelListings } from '@/data/catalog-repository';
 import { invalidateListingPhotoIndex } from '@/lib/local-media';
-import { readStore, todayLabel, writeStore, writeUpload } from '@/lib/system-store';
+import {
+  leadHistory,
+  leadListings,
+  nowLabel,
+  readStore,
+  todayLabel,
+  writeStore,
+  writeUpload,
+  type StoredLead,
+  type StoredLeadEvent,
+  type SystemStore,
+} from '@/lib/system-store';
 
 /**
  * Switches the unit the whole panel is scoped to. Writes the cookie every server
@@ -347,6 +364,330 @@ export async function assignLead(id: string, agent: string): Promise<ActionResul
   return { ok: true, message: `Lead atribuído a ${agent}.` };
 }
 
+// ------------------------------------------------------------- ficha do lead
+
+const DEMO_LEAD_MESSAGE =
+  'Lead de demonstração: a ficha é só leitura. Os leads que chegam pelo site e os cadastrados aqui são editáveis.';
+
+function revalidateLead(id: string): void {
+  revalidatePath(`/sistema/leads/${id}`);
+  revalidatePath('/sistema/leads');
+  revalidatePath('/sistema/crm');
+  revalidatePath('/sistema/painel');
+}
+
+/**
+ * Aplica uma alteração a um lead gravado.
+ *
+ * Toda ação da ficha passa por aqui porque todas erram da mesma forma: o lead
+ * pode ser um dos semeados, que existe na tela e não no store. Sem esse ponto
+ * único, cada ação inventaria a própria mensagem para o mesmo caso.
+ */
+async function saveLead(
+  id: string,
+  change: (lead: StoredLead, store: SystemStore) => SystemStore,
+  message: string,
+): Promise<ActionResult> {
+  try {
+    const store = await readStore();
+    const current = store.leads.find((lead) => lead.id === id);
+    if (!current) return { ok: false, message: DEMO_LEAD_MESSAGE };
+    await writeStore(change(current, store));
+  } catch (error) {
+    return { ok: false, message: `Não foi possível salvar: ${messageOf(error)}` };
+  }
+
+  revalidateLead(id);
+  return { ok: true, message };
+}
+
+/** Grava o lead alterado e acrescenta, opcionalmente, um evento ao histórico. */
+function replaceLead(
+  store: SystemStore,
+  id: string,
+  patch: Partial<StoredLead>,
+  event?: StoredLeadEvent,
+): SystemStore {
+  return {
+    ...store,
+    leads: store.leads.map((lead) =>
+      lead.id === id
+        ? {
+            ...lead,
+            ...patch,
+            history: event ? [...leadHistory(lead), event] : leadHistory(lead),
+          }
+        : lead,
+    ),
+  };
+}
+
+const leadDetailsSchema = z.object({
+  id: required('Lead inválido', 60),
+  name: required('Informe o nome'),
+  phone: required('Informe o telefone', 25),
+  email: z.union([z.string().trim().email('E-mail inválido').max(160), z.literal('')]),
+  document: text(30),
+  interest: required('Descreva o interesse', 200),
+  source: required('Informe a origem', 40),
+  agent: required('Informe o corretor', 120),
+  branch: required('Informe a unidade', 60),
+  budget: optionalNumber,
+  notes: text(2000),
+});
+
+/**
+ * A edição da ficha.
+ *
+ * Um lead entra pelo site com o mínimo — nome, telefone, e-mail e o imóvel que
+ * a pessoa estava vendo. Tudo que qualifica esse contato (orçamento real, CPF,
+ * o que ele de fato procura, quem atende) só existe depois da primeira conversa,
+ * e é isso que essa ação grava.
+ */
+export async function updateLead(
+  previous: ActionResult | null | FormData,
+  maybeFormData?: FormData,
+): Promise<ActionResult> {
+  const formData = formDataFrom(previous, maybeFormData);
+  const parsed = leadDetailsSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { ok: false, message: 'Confira os campos destacados.', errors: fieldErrors(parsed.error) };
+  }
+
+  const { id, ...fields } = parsed.data;
+  return saveLead(
+    id,
+    (current, store) =>
+      replaceLead(
+        store,
+        id,
+        fields,
+        current.agent === fields.agent
+          ? undefined
+          : {
+              at: nowLabel(),
+              kind: 'nota',
+              detail: `Atendimento passou para ${fields.agent}.`,
+              by: fields.agent,
+            },
+      ),
+    'Ficha atualizada.',
+  );
+}
+
+const leadEventSchema = z.object({
+  id: required('Lead inválido', 60),
+  kind: z.enum(['contato', 'visita', 'proposta', 'nota']),
+  detail: required('Escreva o que aconteceu', 1000),
+  by: required('Informe quem registrou', 120),
+});
+
+/** Um registro no histórico: a ligação que foi feita, a visita, o que ficou combinado. */
+export async function addLeadEvent(
+  previous: ActionResult | null | FormData,
+  maybeFormData?: FormData,
+): Promise<ActionResult> {
+  const formData = formDataFrom(previous, maybeFormData);
+  const parsed = leadEventSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { ok: false, message: 'Confira os campos destacados.', errors: fieldErrors(parsed.error) };
+  }
+
+  const { id, kind, detail, by } = parsed.data;
+  return saveLead(
+    id,
+    (_current, store) => replaceLead(store, id, {}, { at: nowLabel(), kind, detail, by }),
+    'Registrado no histórico.',
+  );
+}
+
+const leadListingSchema = z.object({
+  id: required('Lead inválido', 60),
+  /** Vem do datalist como "33066 — Apartamento, Centro"; só o código importa. */
+  code: required('Informe o imóvel', 200),
+  by: text(120),
+});
+
+/** Vincula um imóvel ao lead: o que ele viu no site, e o que o corretor mostrou depois. */
+export async function attachListingToLead(
+  previous: ActionResult | null | FormData,
+  maybeFormData?: FormData,
+): Promise<ActionResult> {
+  const formData = formDataFrom(previous, maybeFormData);
+  const parsed = leadListingSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { ok: false, message: 'Confira os campos destacados.', errors: fieldErrors(parsed.error) };
+  }
+
+  const { id, by } = parsed.data;
+  const code = parsed.data.code.split('—')[0].trim();
+  if (!/^\d{3,8}$/.test(code)) {
+    return {
+      ok: false,
+      message: 'Escolha um imóvel da lista.',
+      errors: { code: 'Código de imóvel inválido' },
+    };
+  }
+
+  const listings = await panelListings();
+  if (!listings.some((listing) => listing.code === code)) {
+    return {
+      ok: false,
+      message: `Nenhum imóvel com o código ${code}.`,
+      errors: { code: 'Não encontrado' },
+    };
+  }
+
+  return saveLead(
+    id,
+    (current, store) => {
+      // Já vinculado: grava o store como está, para a ação continuar idempotente.
+      if (leadListings(current).includes(code)) return store;
+      return replaceLead(
+        store,
+        id,
+        { listings: [...(current.listings ?? []), code] },
+        {
+          at: nowLabel(),
+          kind: 'nota',
+          detail: `Imóvel ${code} vinculado ao atendimento.`,
+          by: by || current.agent,
+        },
+      );
+    },
+    `Imóvel ${code} vinculado.`,
+  );
+}
+
+export async function detachListingFromLead(id: string, code: string): Promise<ActionResult> {
+  return saveLead(
+    id,
+    (current, store) =>
+      replaceLead(store, id, {
+        // Também limpa o `propertyCode` de entrada: sem isso o imóvel que veio
+        // do site voltaria na próxima leitura, e o botão pareceria não funcionar.
+        listings: leadListings(current).filter((entry) => entry !== code),
+        propertyCode: current.propertyCode === code ? null : current.propertyCode,
+      }),
+    `Imóvel ${code} desvinculado.`,
+  );
+}
+
+// ----------------------------------------------------------------- agenda
+
+const appointmentSchema = z.object({
+  leadId: text(60),
+  date: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Escolha uma data'),
+  time: z
+    .string()
+    .trim()
+    .regex(/^\d{2}:\d{2}$/, 'Escolha um horário'),
+  title: required('Descreva o compromisso', 160),
+  kind: z.enum(APPOINTMENT_KINDS),
+  agent: required('Informe o corretor', 120),
+  where: required('Informe o local', 160),
+  withWhom: required('Informe com quem', 160),
+  status: z.enum(APPOINTMENT_STATUSES),
+});
+
+/**
+ * Marca um compromisso e, quando ele nasce de uma ficha, define a próxima ação
+ * do lead no mesmo movimento.
+ *
+ * São dois registros porque respondem a perguntas diferentes — "o que tenho
+ * hoje" e "o que falta fazer com esse contato" — mas uma decisão só. Marcar a
+ * visita e depois lembrar de anotar a próxima ação é exatamente o passo que
+ * ninguém dá, e é como um lead some.
+ */
+export async function createAppointment(
+  previous: ActionResult | null | FormData,
+  maybeFormData?: FormData,
+): Promise<ActionResult> {
+  const formData = formDataFrom(previous, maybeFormData);
+  const parsed = appointmentSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { ok: false, message: 'Confira os campos destacados.', errors: fieldErrors(parsed.error) };
+  }
+
+  const { leadId, ...appointment } = parsed.data;
+  const when = `${isoToLabel(appointment.date)}, ${appointment.time}`;
+
+  try {
+    const store = await readStore();
+    const lead = leadId ? store.leads.find((entry) => entry.id === leadId) : undefined;
+    if (leadId && !lead) return { ok: false, message: DEMO_LEAD_MESSAGE };
+
+    const withAppointment: SystemStore = {
+      ...store,
+      appointments: [
+        {
+          id: crypto.randomUUID(),
+          ...appointment,
+          leadId: leadId || null,
+          createdAt: todayLabel(),
+        },
+        ...store.appointments,
+      ],
+    };
+
+    await writeStore(
+      lead
+        ? replaceLead(
+            withAppointment,
+            lead.id,
+            { nextAction: appointment.title, nextActionAt: when },
+            {
+              at: nowLabel(),
+              kind: appointment.kind === 'visita' ? 'visita' : 'nota',
+              detail:
+                appointment.kind === 'visita'
+                  ? `Visita marcada para ${when} — ${appointment.title}.`
+                  : `Compromisso marcado para ${when} — ${appointment.title}.`,
+              by: appointment.agent,
+            },
+          )
+        : withAppointment,
+    );
+  } catch (error) {
+    return { ok: false, message: `Não foi possível salvar: ${messageOf(error)}` };
+  }
+
+  revalidatePath('/sistema/agenda');
+  revalidatePath('/sistema/painel');
+  if (leadId) revalidateLead(leadId);
+
+  return { ok: true, message: `Compromisso marcado para ${when}. Já está na agenda.` };
+}
+
+export async function updateAppointmentStatus(id: string, status: string): Promise<ActionResult> {
+  if (!APPOINTMENT_STATUSES.includes(status as (typeof APPOINTMENT_STATUSES)[number])) {
+    return { ok: false, message: 'Situação inválida.' };
+  }
+
+  try {
+    const store = await readStore();
+    const appointment = store.appointments.find((entry) => entry.id === id);
+    if (!appointment) {
+      return { ok: false, message: 'Compromisso de demonstração: a situação não é gravada.' };
+    }
+    await writeStore({
+      ...store,
+      appointments: store.appointments.map((entry) =>
+        entry.id === id ? { ...entry, status } : entry,
+      ),
+    });
+    if (appointment.leadId) revalidateLead(appointment.leadId);
+  } catch (error) {
+    return { ok: false, message: `Não foi possível salvar: ${messageOf(error)}` };
+  }
+
+  revalidatePath('/sistema/agenda');
+  return { ok: true, message: 'Situação atualizada.' };
+}
+
 // --------------------------------------------------------------- corretores
 
 /**
@@ -631,8 +972,10 @@ const MAX_DOCUMENT_BYTES = 20 * 1024 * 1024;
 
 const documentSchema = z.object({
   kind: required('Informe o tipo', 40),
-  linkedKind: required('Informe a que se vincula', 40),
+  linkedKind: z.enum(['imóvel', 'contrato', 'proprietário', 'cliente', 'lead']),
   linkedTo: required('Informe o vínculo', 200),
+  /** Preenchido quando o anexo é feito de dentro da ficha do próprio registro. */
+  linkedId: text(60),
   uploadedBy: required('Informe quem enviou', 120),
 });
 
@@ -679,6 +1022,7 @@ export async function createDocument(
           name: file.name,
           storedAs,
           ...parsed.data,
+          linkedId: parsed.data.linkedId || null,
           size: formatBytes(file.size),
           uploadedAt: todayLabel(),
         },
@@ -691,6 +1035,9 @@ export async function createDocument(
 
   revalidatePath('/sistema/documentos');
   revalidatePath('/sistema/contratos');
+  if (parsed.data.linkedKind === 'lead' && parsed.data.linkedId) {
+    revalidateLead(parsed.data.linkedId);
+  }
   return { ok: true, message: `"${file.name}" anexado.` };
 }
 

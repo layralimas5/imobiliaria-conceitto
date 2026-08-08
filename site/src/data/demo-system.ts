@@ -7,6 +7,7 @@
  * building one. Kept in a single file so replacing it is a deletion.
  */
 
+import type { AppointmentKind, AppointmentStatus } from '@/domain/appointment';
 import type { LeadStage } from '@/domain/lead-pipeline';
 import type { Role } from '@/domain/permissions';
 import type { BranchId } from '@/lib/site-config';
@@ -40,6 +41,16 @@ export interface DemoLead {
   readonly nextAction: string;
   readonly nextActionAt: string;
   readonly history: readonly DemoLeadEvent[];
+  /** CPF/CNPJ, quando a ficha já foi preenchida. */
+  readonly document?: string;
+  readonly branch?: string;
+  /** O que não cabe no histórico: prazos, restrições, combinados. */
+  readonly notes?: string;
+  /**
+   * Se o registro está gravado no store e portanto pode ser editado. Os leads
+   * semeados aqui são leitura: a ficha mostra os campos, mas não grava.
+   */
+  readonly isStored?: boolean;
 }
 
 export const DEMO_LEADS: readonly DemoLead[] = [
@@ -203,15 +214,20 @@ export const DEMO_AGENTS: readonly DemoAgent[] = [
 ];
 
 export interface DemoAppointment {
+  /** Rótulo do grupo na agenda. Recalculado na leitura a partir da data. */
   readonly day: string;
   readonly date: string;
   readonly time: string;
   readonly title: string;
-  readonly kind: 'visita' | 'reunião' | 'assinatura' | 'avaliação';
+  readonly kind: AppointmentKind;
   readonly agent: string;
   readonly where: string;
   readonly withWhom: string;
-  readonly status: 'confirmado' | 'a confirmar' | 'concluído';
+  readonly status: AppointmentStatus;
+  /** Presente só nos compromissos gravados — é o que permite mudar a situação. */
+  readonly id?: string;
+  /** O lead que originou o compromisso, quando ele foi marcado de uma ficha. */
+  readonly leadId?: string | null;
 }
 
 export const DEMO_SCHEDULE: readonly DemoAppointment[] = [
@@ -357,10 +373,12 @@ export interface DemoDocument {
   readonly name: string;
   readonly kind: 'matrícula' | 'escritura' | 'contrato' | 'documento pessoal' | 'laudo' | 'outro';
   readonly linkedTo: string;
-  readonly linkedKind: 'imóvel' | 'contrato' | 'proprietário' | 'cliente';
+  readonly linkedKind: 'imóvel' | 'contrato' | 'proprietário' | 'cliente' | 'lead';
   readonly size: string;
   readonly uploadedAt: string;
   readonly uploadedBy: string;
+  /** Id do registro a que o arquivo pertence, quando anexado de dentro dele. */
+  readonly linkedId?: string | null;
 }
 
 export const DEMO_DOCUMENTS: readonly DemoDocument[] = [

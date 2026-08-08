@@ -1,6 +1,13 @@
 import { FileText } from 'lucide-react';
 import type { DemoDocument } from '@/data/demo-system';
-import { allDocuments, scopedClients, scopedContracts, scopedListings, scopedOwners } from '@/data/scoped';
+import {
+  allDocuments,
+  scopedClients,
+  scopedContracts,
+  scopedLeads,
+  scopedListings,
+  scopedOwners,
+} from '@/data/scoped';
 import { currentScope } from '@/lib/branch-cookie';
 import { TYPE_LABELS } from '@/domain/search';
 import { DocumentForm } from '@/components/system/document-form';
@@ -15,6 +22,7 @@ const KIND_TONE: Record<DemoDocument['linkedKind'], 'neutral' | 'brand' | 'good'
   contrato: 'warn',
   proprietário: 'neutral',
   cliente: 'neutral',
+  lead: 'good',
 };
 
 /**
@@ -50,6 +58,7 @@ export default async function DocumentosPage() {
               ),
               proprietário: scopedOwners(scope).map((owner) => owner.name),
               cliente: (await scopedClients(scope)).map((client) => client.name),
+              lead: (await scopedLeads(scope)).map((lead) => lead.name),
             }}
           />
         }
@@ -68,7 +77,7 @@ export default async function DocumentosPage() {
 
       <Table head={['Arquivo', 'Tipo', 'Vinculado a', 'Tamanho', 'Enviado em', 'Por']}>
         {documents.map((document) => (
-          <tr key={document.name}>
+          <tr key={`${document.linkedKind}-${document.linkedTo}-${document.name}`}>
             <Td>
               <span className="flex items-center gap-2.5">
                 <FileText className="size-4 shrink-0 text-ink-faint" aria-hidden strokeWidth={1.75} />
@@ -88,10 +97,10 @@ export default async function DocumentosPage() {
       </Table>
 
       <p className="mt-6 rounded-lg border border-line bg-surface px-4 py-3 text-xs leading-relaxed text-ink-soft">
-        <strong className="font-bold text-ink">Nesta demonstração</strong> a lista é o cadastro dos
-        arquivos, sem upload. Num sistema em produção o arquivo vai para armazenamento privado e o
-        acesso segue o perfil de quem está logado — documento de cliente não é visível para toda a
-        equipe.
+        <strong className="font-bold text-ink">Onde os arquivos ficam.</strong> O upload grava em
+        pasta privada, fora do site: nada aqui é alcançável por URL. Num sistema em produção o
+        acesso ainda passa a seguir o perfil de quem está logado — documento de cliente não é
+        visível para toda a equipe.
       </p>
     </>
   );
