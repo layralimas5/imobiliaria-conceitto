@@ -35,7 +35,7 @@ export default async function CrmPage() {
       <PageHead
         eyebrow="Funil"
         title="CRM"
-        text="Do primeiro contato ao fechamento. Arraste um card para mudar a etapa; quem usa teclado ou celular troca pelo seletor no próprio card."
+        text="Do primeiro contato ao fechamento, da esquerda para a direita. Arraste um card para mudar a etapa; quem usa teclado ou celular troca pelo seletor no próprio card."
       />
 
       <StatRow className="mb-6">
@@ -57,8 +57,9 @@ export default async function CrmPage() {
         <p className="text-xs uppercase tracking-wider text-ink-faint">Etapas do funil</p>
 
         {/* A bar per stage, scaled to the busiest one: the shape of the funnel
-            is the information, not the exact pixel width. */}
-        <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            is the information, not the exact pixel width. Em tela larga as oito
+            etapas ficam na mesma linha, na ordem do funil, como no quadro. */}
+        <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-8">
           {DEMO_PIPELINE.map((stage) => (
             <li key={stage.stage}>
               <div className="flex items-baseline justify-between gap-3 text-sm">
